@@ -5,7 +5,7 @@ import java.io.*;
 
 class Server {
 
-    public static void main(String argv[]) throws Exception
+    public static void main(String[] argv) throws Exception
     {
         String clientSentence;
         String capitalizedSentence;
