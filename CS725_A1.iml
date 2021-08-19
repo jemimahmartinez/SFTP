@@ -2,11 +2,20 @@
 <module type="JAVA_MODULE" version="4">
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
-    <content url="file://$USER_HOME$/Documents/2021/SEMESTER2/COMPSYS725/assignment1" />
-    <content url="file://$USER_HOME$/Documents/2021/SEMESTER2/COMPSYS725/assignment1/CS725_A1">
-      <sourceFolder url="file://$USER_HOME$/Documents/2021/SEMESTER2/COMPSYS725/assignment1/CS725_A1/src" isTestSource="false" />
+    <content url="file://$MODULE_DIR$/.." />
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../sqlite-jdbc-3.36.0.1.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>
