@@ -2,10 +2,15 @@ package server;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 class Server {
 
     private static boolean connectionLost = false;
+//    private static String[] hasFullAccess;
+    private static ArrayList<String> hasFullAccess = new ArrayList<String>();
+    private static Boolean loggedIN = false;
+    private static String currentUser = "";
 
     public static void main(String[] argv) throws Exception
     {
@@ -52,9 +57,32 @@ class Server {
                         /* user-id
                         Your userid on the remote system */
                         case "USER":
+                            if (arg.length() >= 1 || arg != null) {
+                                String user = arg;
+                                for (String aUser : hasFullAccess) {
+                                    if (user.equals(aUser)) {
+                                        loggedIN = true;
+                                        currentUser = user;
+                                        serverSentence = "!" + user + " logged in \n";
+                                        outToClient.writeBytes(serverSentence);
+                                        break;
+                                    }
+                                }
+                                // user is already logged in
+                                if (loggedIN || user.equals(currentUser)) {
+                                    serverSentence = "!" + user + " logged in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                } else {
+                                    serverSentence = "+User-id valid, send account and password \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            } else {
+                                // -Invalid user-id, try again
+                                serverSentence = "-Invalid user-id, try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            }
                             // !<user-id> logged in = do not need an account or password/you specified a user-id not needing them
                             // +User-id valid, send account and password
-                            // -Invalid user-id, try again
                             break;
 
                         /* account
