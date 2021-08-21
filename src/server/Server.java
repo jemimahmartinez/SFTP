@@ -8,15 +8,16 @@ class Server {
 
     private static boolean connectionLost = false;
 //    private static String[] hasFullAccess;
-    private static ArrayList<String> hasFullAccess = new ArrayList<String>();
+    private static final ArrayList<String> usersWithFullAccess = new ArrayList<String>();
     private static Boolean loggedIN = false;
     private static String currentUser = "";
+    private static Boolean hasFullAccess = false;
 
     public static void main(String[] argv) throws Exception
     {
         String clientSentence;
         String serverSentence;
-        Boolean isActive = true;
+        boolean isActive = true;
         String cmd, arg;
 
         ServerSocket welcomeSocket = new ServerSocket(6789);
@@ -29,11 +30,11 @@ class Server {
 
             if (connectionLost) {
                 serverSentence = "-Server Out to Lunch \n";
-                System.out.println();
+                // System.out.println();
                 outToClient.writeBytes(serverSentence);
             } else {
                 serverSentence = "+Server SFTP Service \n";
-                System.out.println();
+                // System.out.println();
                 outToClient.writeBytes(serverSentence);
                 while (isActive) {
                     inFromClient =
@@ -53,16 +54,20 @@ class Server {
                         cmd = "";
                         arg = "";
                     }
+                    String user = arg;
                     switch(cmd) {
                         /* user-id
                         Your userid on the remote system */
                         case "USER":
-                            if (arg.length() >= 1 || arg != null) {
-                                String user = arg;
-                                for (String aUser : hasFullAccess) {
+                            if (arg == null || arg.length() < 1) {
+                                // -Invalid user-id, try again
+                                serverSentence = "-Invalid user-id, try again \n";
+                            } else {
+                                for (String aUser : usersWithFullAccess) {
                                     if (user.equals(aUser)) {
                                         loggedIN = true;
                                         currentUser = user;
+                                        hasFullAccess = true;
                                         serverSentence = "!" + user + " logged in \n";
                                         outToClient.writeBytes(serverSentence);
                                         break;
@@ -71,16 +76,14 @@ class Server {
                                 // user is already logged in
                                 if (loggedIN || user.equals(currentUser)) {
                                     serverSentence = "!" + user + " logged in \n";
-                                    outToClient.writeBytes(serverSentence);
-                                } else {
+                                } else { // Check if user is valid
+                                    currentUser = user;
+                                    loggedIN = false;
+                                    hasFullAccess = false;
                                     serverSentence = "+User-id valid, send account and password \n";
-                                    outToClient.writeBytes(serverSentence);
                                 }
-                            } else {
-                                // -Invalid user-id, try again
-                                serverSentence = "-Invalid user-id, try again \n";
-                                outToClient.writeBytes(serverSentence);
                             }
+                            outToClient.writeBytes(serverSentence);
                             // !<user-id> logged in = do not need an account or password/you specified a user-id not needing them
                             // +User-id valid, send account and password
                             break;
@@ -88,6 +91,14 @@ class Server {
                         /* account
                         The account you want to use (usually used for billing) on the remote system */
                         case "ACCT":
+//                            if (arg == null || arg.length() < 1) {
+//                                serverSentence = "-Invalid account, try again \n";
+//                                outToClient.writeBytes(serverSentence);
+//                            } else if (hasFullAccess) {
+//                                serverSentence = "!Account not needed, logged-in \n";
+//                                outToClient.writeBytes(serverSentence);
+//                            } else {
+//                            }
                             // !Account valid, logged-in = account was ok/not needed. skip password
                             // +Account valid, send password = account ok/not needed. send your password next
                             // -Invalid account, try again
@@ -132,7 +143,7 @@ class Server {
                             break;
 
                         /* file-spec
-                        This will delete the file from the remot system */
+                        This will delete the file from the remote system */
                         case "KILL":
                             // +<file-spec> deleted
                             // -Not deleted because (reason)
@@ -155,6 +166,7 @@ class Server {
                             serverSentence = "+Server closing connection"; // +(the message may be charge/accounting info)
                             outToClient.writeBytes(serverSentence);
                             isActive = false; // then both systems close the connection
+                            connectionSocket.close();
                             break;
 
                         /* file-spec

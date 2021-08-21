@@ -8,24 +8,27 @@ class Client {
     {
         String sentence;
         String modifiedSentence;
+        Boolean connected = true;
 
         BufferedReader inFromUser =
                 new BufferedReader(new InputStreamReader(System.in));
         Socket clientSocket = new Socket("localhost", 6789);
 
-        DataOutputStream outToServer =
-                new DataOutputStream(clientSocket.getOutputStream());
-        BufferedReader inFromServer =
-                new BufferedReader(new
-                        InputStreamReader(clientSocket.getInputStream()));
+        while (connected) {
+            DataOutputStream outToServer =
+                    new DataOutputStream(clientSocket.getOutputStream());
+            BufferedReader inFromServer =
+                    new BufferedReader(new
+                            InputStreamReader(clientSocket.getInputStream()));
 
-        sentence = inFromUser.readLine();
+            sentence = inFromUser.readLine();
 
-        outToServer.writeBytes(sentence + '\n');
+            outToServer.writeBytes(sentence + '\n');
 
-        modifiedSentence = inFromServer.readLine();
+            modifiedSentence = inFromServer.readLine();
 
-        System.out.println("FROM SERVER: " + modifiedSentence);
+            System.out.println("FROM SERVER: " + modifiedSentence);
+        }
 
         clientSocket.close();
 
