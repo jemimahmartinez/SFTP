@@ -107,9 +107,7 @@ class Server {
                                 if (loggedIN || account.equals(currentAccount)) { // if already logged in
                                     serverSentence = "!Account valid, logged-in \n";
                                 }
-                                else {
-
-                                    // for each user in the dictionary
+                                else { // if the account is valid
                                     for (String key: dict) {
                                         // check if the account associated with the user is the same as the currentAccount
                                         if (dictAcctUser.get(key)[0].equals(arg)) {
@@ -137,6 +135,30 @@ class Server {
                         /* password
                         Your password on the remote system */
                         case "PASS":
+                            String password = arg;
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-Wrong password, try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else if (hasFullAccess || loggedIN) {
+                                serverSentence = "!Logged in \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                for (String key: dict) {
+                                    // check if the account associated with the user is the same as the currentAccount
+                                    if (dictAcctUser.get(key)[0].equals(arg)) {
+                                        // check if the user you are on (through iterating) is the same as the currentUser
+                                        if (key.equals(currentUser) && dictAcctUser.get(key)[1].equals(password)) {
+                                            loggedIN = true;
+                                            serverSentence = "!Logged in \n";
+                                            outToClient.writeBytes(serverSentence);
+                                            break;
+                                        }
+                                    }
+                                }
+                                loggedIN = false;
+                                serverSentence = "-Wrong password, try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            }
                             // ! Logged in = password is ok and you can begin file transfers
                             // +Send account = password ok but you haven't specified the account
                             // -Wrong password, try again
