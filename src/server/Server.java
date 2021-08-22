@@ -3,6 +3,8 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import java.util.Hashtable;
+//import java.util.Set;
 
 class Server {
 
@@ -11,7 +13,10 @@ class Server {
     private static final ArrayList<String> usersWithFullAccess = new ArrayList<String>();
     private static Boolean loggedIN = false;
     private static String currentUser = "";
+    private static String currentAccount = "";
     private static Boolean hasFullAccess = false;
+    private Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>();
+    // private Set<String> dictAcctUser;
 
     public static void main(String[] argv) throws Exception
     {
@@ -54,11 +59,11 @@ class Server {
                         cmd = "";
                         arg = "";
                     }
-                    String user = arg;
                     switch(cmd) {
                         /* user-id
                         Your userid on the remote system */
                         case "USER":
+                            String user = arg;
                             if (arg == null || arg.length() < 1) {
                                 // -Invalid user-id, try again
                                 serverSentence = "-Invalid user-id, try again \n";
@@ -91,14 +96,33 @@ class Server {
                         /* account
                         The account you want to use (usually used for billing) on the remote system */
                         case "ACCT":
-//                            if (arg == null || arg.length() < 1) {
-//                                serverSentence = "-Invalid account, try again \n";
-//                                outToClient.writeBytes(serverSentence);
-//                            } else if (hasFullAccess) {
-//                                serverSentence = "!Account not needed, logged-in \n";
-//                                outToClient.writeBytes(serverSentence);
-//                            } else {
-//                            }
+                            String account = arg;
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-Invalid account, try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else if (hasFullAccess) {
+                                serverSentence = "!Account valid, logged-in \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN || account.equals(currentAccount)) { // if already logged in
+                                    serverSentence = "!Account valid, logged-in";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+//                                else if () { // if account is invalid
+                                    // for each user in the dictionary
+                                    // check if the account associated with the user is the same as the currentAccount
+                                    // check if the user you are on (through iterating) is the same as the currentUser
+                                    // if so, then
+                                    // serverSentence = "+Account valid, send password"
+                                    // outToClient.writeBytes(serverSentence)
+//                                }
+                                else {
+                                    currentAccount = account;
+                                    loggedIN = false;
+                                    serverSentence = "+Account valid, send password";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             // !Account valid, logged-in = account was ok/not needed. skip password
                             // +Account valid, send password = account ok/not needed. send your password next
                             // -Invalid account, try again
