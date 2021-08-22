@@ -28,6 +28,10 @@ class Client {
             modifiedSentence = inFromServer.readLine();
 
             System.out.println("FROM SERVER: " + modifiedSentence);
+
+            if (modifiedSentence.equals("+Server closing connection")) {
+                connected = false;
+            }
         }
 
         clientSocket.close();

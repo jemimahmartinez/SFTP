@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
-//import java.util.Set;
+import java.util.Set;
 
 class Server {
 
@@ -15,8 +15,8 @@ class Server {
     private static String currentUser = "";
     private static String currentAccount = "";
     private static Boolean hasFullAccess = false;
-    private Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>();
-    // private Set<String> dictAcctUser;
+    private static Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>(); // <user, [account, password]>
+     private static Set<String> dict = dictAcctUser.keySet();
 
     public static void main(String[] argv) throws Exception
     {
@@ -105,23 +105,29 @@ class Server {
                                 outToClient.writeBytes(serverSentence);
                             } else {
                                 if (loggedIN || account.equals(currentAccount)) { // if already logged in
-                                    serverSentence = "!Account valid, logged-in";
-                                    outToClient.writeBytes(serverSentence);
+                                    serverSentence = "!Account valid, logged-in \n";
                                 }
-//                                else if () { // if account is invalid
-                                    // for each user in the dictionary
-                                    // check if the account associated with the user is the same as the currentAccount
-                                    // check if the user you are on (through iterating) is the same as the currentUser
-                                    // if so, then
-                                    // serverSentence = "+Account valid, send password"
-                                    // outToClient.writeBytes(serverSentence)
-//                                }
                                 else {
-                                    currentAccount = account;
+
+                                    // for each user in the dictionary
+                                    for (String key: dict) {
+                                        // check if the account associated with the user is the same as the currentAccount
+                                        if (dictAcctUser.get(key)[0].equals(arg)) {
+                                            // check if the user you are on (through iterating) is the same as the currentUser
+                                            if (key.equals(currentUser)) {
+                                                currentAccount = account;
+                                                loggedIN = false;
+                                                serverSentence = "+Account valid, send password \n";
+                                                outToClient.writeBytes(serverSentence);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    // if account is invalid
                                     loggedIN = false;
-                                    serverSentence = "+Account valid, send password";
-                                    outToClient.writeBytes(serverSentence);
+                                    serverSentence = "-Invalid account, try again \n";
                                 }
+                                outToClient.writeBytes(serverSentence);
                             }
                             // !Account valid, logged-in = account was ok/not needed. skip password
                             // +Account valid, send password = account ok/not needed. send your password next
