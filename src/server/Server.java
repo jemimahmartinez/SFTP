@@ -2,6 +2,9 @@ package server;
 
 import java.io.*;
 import java.net.*;
+import java.nio.Buffer;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Set;
@@ -18,6 +21,32 @@ class Server {
     private static Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>(); // <user, [account, password]>
      private static Set<String> dict = dictAcctUser.keySet();
 
+     public static void initialise() {
+        try {
+            Path path = Paths.get("data.txt");
+            // FileReader file = new FileReader(String.valueOf(path));
+            // BufferedReader data = new BufferedReader(file);
+            File file = new File(String.valueOf(path));
+            BufferedReader data = new BufferedReader(new FileReader(file));
+            String line;
+            while((line = data.readLine()) != null) {
+                // re write from here
+                String[] element = line.split("\t");
+                if (element.length == 3) {
+                    String[] key = {element[2], element[0]};
+                    dictAcctUser.put(element[1], key);
+                } else if (element.length == 1) {
+                    usersWithFullAccess.add(element[0]);
+                }
+            }
+//            file.close();
+            data.close();
+        } catch (IOException e) {
+            System.out.println(e);
+            System.out.println("Cannot find data.txt");
+        }
+     }
+
     public static void main(String[] argv) throws Exception
     {
         String clientSentence;
@@ -26,6 +55,8 @@ class Server {
         String cmd, arg;
 
         ServerSocket welcomeSocket = new ServerSocket(6789);
+
+        initialise();
 
         while(true) {
             // Accept connection from client and initialise data streams
