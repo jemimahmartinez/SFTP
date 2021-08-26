@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Objects;
 import java.util.Set;
 
 class Server {
@@ -24,26 +25,15 @@ class Server {
      public static void initialise() {
         try {
             Path path = Paths.get("data.txt");
-            // FileReader file = new FileReader(String.valueOf(path));
-            // BufferedReader data = new BufferedReader(file);
-            File file = new File(String.valueOf(path));
-            BufferedReader data = new BufferedReader(new FileReader(file));
-            String line;
-            while((line = data.readLine()) != null) {
-                // re write from here
-                String[] element = line.split("\t");
-                if (element.length == 3) {
-                    String[] key = {element[2], element[0]};
-                    dictAcctUser.put(element[1], key);
-                } else if (element.length == 1) {
-                    usersWithFullAccess.add(element[0]);
-                }
-            }
-//            file.close();
-            data.close();
+            loadData(String.valueOf(path));
         } catch (IOException e) {
-            System.out.println(e);
-            System.out.println("Cannot find data.txt");
+            try {
+                String path = Server.class.getResource("data.txt").getPath();
+                loadData(path);
+            } catch (IOException ioException) {
+                System.out.println(e);
+                System.out.println("Cannot find data.txt");
+            }
         }
      }
 
@@ -292,6 +282,27 @@ class Server {
 //            serverSentence = clientSentence.toUpperCase() + '\n';
 //            outToClient.writeBytes(serverSentence);
         }
+    }
+
+    private static void loadData(String path) throws IOException {
+         System.out.println("Data loaded successfully! \n");
+         FileReader file = new FileReader(String.valueOf(path));
+         BufferedReader data = new BufferedReader(file);
+//        File file = new File(String.valueOf(path));
+//        BufferedReader data = new BufferedReader(new FileReader(file));
+        String line;
+        while((line = data.readLine()) != null) {
+            // re write from here
+            String[] element = line.split("\t");
+            if (element.length == 3) {
+                String[] key = {element[2], element[0]};
+                dictAcctUser.put(element[1], key);
+            } else if (element.length == 1) {
+                usersWithFullAccess.add(element[0]);
+            }
+        }
+//            file.close();
+        data.close();
     }
 }
 
