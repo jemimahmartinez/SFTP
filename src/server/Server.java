@@ -24,16 +24,11 @@ class Server {
 
      public static void initialise() {
         try {
-            Path path = Paths.get("data.txt");
+            String path = Server.class.getResource("data.txt").getPath();
             loadData(String.valueOf(path));
         } catch (IOException e) {
-            try {
-                String path = Server.class.getResource("data.txt").getPath();
-                loadData(path);
-            } catch (IOException ioException) {
-                System.out.println(e);
-                System.out.println("Cannot find data.txt");
-            }
+            System.out.println(e);
+            System.out.println("Cannot find data.txt");
         }
      }
 
