@@ -5,10 +5,7 @@ import java.net.*;
 import java.nio.Buffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 class Server {
 
@@ -283,21 +280,20 @@ class Server {
          System.out.println("Data loaded successfully! \n");
          FileReader file = new FileReader(String.valueOf(path));
          BufferedReader data = new BufferedReader(file);
-//        File file = new File(String.valueOf(path));
-//        BufferedReader data = new BufferedReader(new FileReader(file));
-        String line;
-        while((line = data.readLine()) != null) {
-            // re write from here
-            String[] element = line.split("\t");
-            if (element.length == 3) {
-                String[] key = {element[2], element[0]};
-                dictAcctUser.put(element[1], key);
-            } else if (element.length == 1) {
-                usersWithFullAccess.add(element[0]);
-            }
-        }
-//            file.close();
-        data.close();
+         String line;
+         String[] element, value;
+         while((line = data.readLine()) != null) {
+             element = line.split(" ");
+             if (element.length == 3) {
+                 value = new String[]{element[0], element[2]};
+                 dictAcctUser.put(element[1], value);
+             } else if (element.length == 1) {
+                 usersWithFullAccess.add(element[0]);
+             }
+         }
+         data.close();
+         System.out.println(dictAcctUser);
+         System.out.println(usersWithFullAccess);
     }
 }
 

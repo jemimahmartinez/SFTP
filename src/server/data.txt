@@ -1,1 +1,8 @@
-hi there hello
+USER ACCT PASS
+student jmar948 1234
+student jmar949 5678
+student qwer5678 abcd
+lecturer abcd123 efg
+lecturer lect758 hijklmnop
+TA teac838 assistant2
+guest
