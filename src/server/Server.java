@@ -94,6 +94,7 @@ class Server {
                                 // user is already logged in
                                 if (loggedIN || user.equals(currentUser)) {
                                     serverSentence = "!" + user + " logged in \n";
+                                    break;
                                 } else { // Check if user is valid
                                     currentUser = user;
                                     loggedIN = false;
