@@ -131,7 +131,6 @@ class Server {
                                                 loggedIN = false;
                                                 serverSentence = "+Account valid, send password \n";
                                                 outToClient.writeBytes(serverSentence);
-//                                                break;
                                                 breakout = true;
 
                                             }
@@ -172,7 +171,6 @@ class Server {
                                             serverSentence = "!Logged in \n";
                                             outToClient.writeBytes(serverSentence);
                                             breakout = true;
-                                            break;
                                         }
                                     }
                                 }
