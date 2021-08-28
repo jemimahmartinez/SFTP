@@ -18,7 +18,8 @@ class Server {
     private static String currentAccount = "";
     private static Boolean hasFullAccess = false;
     private static Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>(); // <user, [account, password]>
-     private static Set<String> dict = dictAcctUser.keySet();
+    private static Set<String> dict = dictAcctUser.keySet();
+//    private static String currentDirectory = System.getProperty();
 
      public static void initialise() {
         try {
@@ -223,6 +224,30 @@ class Server {
                         /* New-directory
                         * This will change the current working directory on the remote host to the argument passed */
                         case "CDIR":
+                            String directory = arg;
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-Can't connect to directory because what you provided is invalid \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN) {
+                                    File newDirectory = new File(directory);
+                                    if (newDirectory.exists() && hasFullAccess) {
+                                        // defaultDirectory = newPath
+                                        // nextDirectory = ""
+                                         serverSentence = "!Changed working dir to " + directory + "\n";
+                                         outToClient.writeBytes(serverSentence);
+                                    } else if (newDirectory.exists() && !hasFullAccess) {
+                                         serverSentence = "+directory ok, send account/password \n";
+                                         outToClient.writeBytes(serverSentence);
+                                        // nextDirectory = newPath;
+                                        // CDIR_verification = true;
+                                        // loggedIn = false;
+                                    }
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             // !Changed working dir to <new-directory>
                             // -Can't connect to directory because: (reason)
                             // +directory ok, send account/password
