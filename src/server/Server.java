@@ -191,6 +191,26 @@ class Server {
                         The mapping of the stored file to the transmission byte stream is controlled by the type.
                         The default is binary if they type is not specified */
                         case "TYPE":
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-Type not valid \n";
+                            } else {
+                                if (loggedIN) {
+                                    switch(arg){
+                                        case "A":
+                                            serverSentence = "+Using Ascii mode \n";
+                                            break;
+                                        case "C":
+                                            serverSentence = "+Using Continuous mode \n";
+                                            break;
+                                        default: // B - mentioned default is binary if the type is not specified?????
+                                            serverSentence = "+Using Binary mode \n";
+                                            break;
+                                    }
+                                } else {
+                                    serverSentence = "-Not logged in. Please log in \n";
+                                }
+                            }
+                            outToClient.writeBytes(serverSentence );
                             // +Using { Ascii | Binary | Continuous } mode
                             // -Type not valid
                             break;
