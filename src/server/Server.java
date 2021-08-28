@@ -1,5 +1,6 @@
 package server;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
 import java.net.*;
 import java.nio.Buffer;
@@ -35,6 +36,7 @@ class Server {
         String serverSentence;
         boolean isActive = true;
         String cmd, arg;
+        boolean breakout = false;
 
         ServerSocket welcomeSocket = new ServerSocket(6789);
 
@@ -48,11 +50,9 @@ class Server {
 
             if (connectionLost) {
                 serverSentence = "-Server Out to Lunch \n";
-                // System.out.println();
                 outToClient.writeBytes(serverSentence);
             } else {
                 serverSentence = "+Server SFTP Service \n";
-                // System.out.println();
                 outToClient.writeBytes(serverSentence);
                 while (isActive) {
                     inFromClient =
@@ -123,16 +123,22 @@ class Server {
                                 else { // if the account is valid
                                     for (String key: dict) {
                                         // check if the account associated with the user is the same as the currentAccount
-                                        if (dictAcctUser.get(key)[0].equals(arg)) {
+                                        if (dictAcctUser.get(key)[0].equals(currentUser)) { // dictAcctUser.get(key)[1].equals(arg)
                                             // check if the user you are on (through iterating) is the same as the currentUser
-                                            if (key.equals(currentUser)) {
+                                            if (key.equals(arg)) { // key.equals(currentUser)
                                                 currentAccount = account;
                                                 loggedIN = false;
                                                 serverSentence = "+Account valid, send password \n";
                                                 outToClient.writeBytes(serverSentence);
-                                                break;
+//                                                break;
+                                                breakout = true;
+
                                             }
                                         }
+                                    }
+                                    if (breakout) {
+                                        breakout = false;
+                                        break;
                                     }
                                     // if account is invalid
                                     loggedIN = false;
@@ -158,15 +164,20 @@ class Server {
                             } else {
                                 for (String key: dict) {
                                     // check if the account associated with the user is the same as the currentAccount
-                                    if (dictAcctUser.get(key)[0].equals(arg)) {
+                                    if (dictAcctUser.get(key)[0].equals(currentUser)) { // dictAcctUser.get(key)[0].equals(arg)
                                         // check if the user you are on (through iterating) is the same as the currentUser
-                                        if (key.equals(currentUser) && dictAcctUser.get(key)[1].equals(password)) {
+                                        if (key.equals(currentAccount) && dictAcctUser.get(key)[1].equals(password)) { // key.equals(currentUser) && dictAcctUser.get(key)[1].equals(password)
                                             loggedIN = true;
                                             serverSentence = "!Logged in \n";
                                             outToClient.writeBytes(serverSentence);
+                                            breakout = true;
                                             break;
                                         }
                                     }
+                                }
+                                if (breakout) {
+                                    breakout = false;
+                                    break;
                                 }
                                 loggedIN = false;
                                 serverSentence = "-Wrong password, try again \n";
