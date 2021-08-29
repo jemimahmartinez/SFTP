@@ -150,10 +150,10 @@ class Server {
                                 }
                                 else { // if the account is valid
                                     for (String key: dict) {
-                                        // check if the account associated with the user is the same as the currentAccount
-                                        if (dictAcctUser.get(key)[1].equals(currentUser)) { // dictAcctUser.get(key)[1].equals(arg)
-                                            // check if the user you are on (through iterating) is the same as the currentUser
-                                            if (key.equals(arg)) { // key.equals(currentUser)
+                                        // check if the user you are on (through iterating) is the same as the currentUser
+                                        if (dictAcctUser.get(key)[1].equals(currentUser)) {
+                                            // check if the account associated with the user is the same as the currentAccount
+                                            if (key.equals(arg)) {
                                                 currentAccount = account;
                                                 loggedIN = false;
                                                 serverSentence = "+Account valid, send password \n";
@@ -189,10 +189,10 @@ class Server {
                                 outToClient.writeBytes(serverSentence);
                             } else {
                                 for (String key: dict) {
-                                    // check if the account associated with the user is the same as the currentAccount
-                                    if (dictAcctUser.get(key)[1].equals(currentUser)) { // dictAcctUser.get(key)[0].equals(arg)
-                                        // check if the user you are on (through iterating) is the same as the currentUser
-                                        if (key.equals(currentAccount) && dictAcctUser.get(key)[0].equals(password)) { // key.equals(currentUser) && dictAcctUser.get(key)[1].equals(password)
+                                    // check if the user you are on (through iterating) is the same as the currentUser
+                                    if (dictAcctUser.get(key)[1].equals(currentUser)) {
+                                        // check if the account associated with the user is the same as the currentAccount
+                                        if (key.equals(currentAccount) && dictAcctUser.get(key)[0].equals(password)) {
                                             loggedIN = true;
                                             serverSentence = "!Logged in \n";
                                             outToClient.writeBytes(serverSentence);
@@ -381,8 +381,6 @@ class Server {
              } else if (element.length == 2) {
                  usersWithSomeAccess.add(element[0]);
                  dictUser.put(element[0], element[1]);
-//                 value = new String[]{element[1]};
-//                 dictAcctUser.put(element[0], value);
              } else if (element.length == 1) {
                  usersWithFullAccess.add(element[0]);
              }
