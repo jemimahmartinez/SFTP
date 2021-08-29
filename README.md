@@ -115,7 +115,7 @@ This command will delete the file you specified from the remote system
 #### NAME
 This command renames the old-file-spec to be new-file-spec on the remote system
 
-### DONE
+#### DONE
 This command tells the remote system that you are done
 ```
 $ DONE
