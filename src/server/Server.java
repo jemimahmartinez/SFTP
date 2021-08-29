@@ -13,12 +13,15 @@ class Server {
     private static boolean connectionLost = false;
 //    private static String[] hasFullAccess;
     private static final ArrayList<String> usersWithFullAccess = new ArrayList<String>();
+    private static final ArrayList<String> usersWithSomeAccess = new ArrayList<String>();
     private static Boolean loggedIN = false;
     private static String currentUser = "";
     private static String currentAccount = "";
     private static Boolean hasFullAccess = false;
-    private static Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>(); // <user, [account, password]>
+    private static Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>(); // <account, [user, password]>
     private static Set<String> dict = dictAcctUser.keySet();
+    private static Hashtable<String, String> dictUser = new Hashtable<String, String>(); // user, password
+    private static Set<String> dictUs = dictUser.keySet();
 //    private static String currentDirectory = System.getProperty();
 
      public static void initialise() {
@@ -92,15 +95,38 @@ class Server {
                                         break;
                                     }
                                 }
+                                for (String aUser: usersWithSomeAccess) {
+                                    if (user.equals(aUser)) {
+                                        loggedIN = false;
+                                        currentUser = user;
+                                        hasFullAccess = false;
+                                        serverSentence = "!User-id valid, send password \n";
+                                        outToClient.writeBytes(serverSentence);
+                                        break;
+                                    }
+                                }
+                                for (String key: dict) { // Check if user is valid
+                                    if (dictAcctUser.get(key)[1].equals(user)) {
+                                        loggedIN = false;
+                                        currentUser = user;
+                                        hasFullAccess = false;
+                                        serverSentence = "+User-id valid, send account and password \n";
+                                        outToClient.writeBytes(serverSentence);
+                                        break;
+                                    }
+                                }
                                 // user is already logged in
                                 if (loggedIN || user.equals(currentUser)) {
                                     serverSentence = "!" + user + " logged in \n";
                                     break;
-                                } else { // Check if user is valid
-                                    currentUser = user;
+                                } else {
+//                                    currentUser = user;
+//                                    loggedIN = false;
+//                                    hasFullAccess = false;
+//                                    serverSentence = "+User-id valid, send account and password \n";
                                     loggedIN = false;
                                     hasFullAccess = false;
-                                    serverSentence = "+User-id valid, send account and password \n";
+                                    serverSentence = "-Invalid user-id, try again \n";
                                 }
                             }
                             outToClient.writeBytes(serverSentence);
@@ -125,7 +151,7 @@ class Server {
                                 else { // if the account is valid
                                     for (String key: dict) {
                                         // check if the account associated with the user is the same as the currentAccount
-                                        if (dictAcctUser.get(key)[0].equals(currentUser)) { // dictAcctUser.get(key)[1].equals(arg)
+                                        if (dictAcctUser.get(key)[1].equals(currentUser)) { // dictAcctUser.get(key)[1].equals(arg)
                                             // check if the user you are on (through iterating) is the same as the currentUser
                                             if (key.equals(arg)) { // key.equals(currentUser)
                                                 currentAccount = account;
@@ -133,7 +159,6 @@ class Server {
                                                 serverSentence = "+Account valid, send password \n";
                                                 outToClient.writeBytes(serverSentence);
                                                 breakout = true;
-
                                             }
                                         }
                                     }
@@ -165,14 +190,22 @@ class Server {
                             } else {
                                 for (String key: dict) {
                                     // check if the account associated with the user is the same as the currentAccount
-                                    if (dictAcctUser.get(key)[0].equals(currentUser)) { // dictAcctUser.get(key)[0].equals(arg)
+                                    if (dictAcctUser.get(key)[1].equals(currentUser)) { // dictAcctUser.get(key)[0].equals(arg)
                                         // check if the user you are on (through iterating) is the same as the currentUser
-                                        if (key.equals(currentAccount) && dictAcctUser.get(key)[1].equals(password)) { // key.equals(currentUser) && dictAcctUser.get(key)[1].equals(password)
+                                        if (key.equals(currentAccount) && dictAcctUser.get(key)[0].equals(password)) { // key.equals(currentUser) && dictAcctUser.get(key)[1].equals(password)
                                             loggedIN = true;
                                             serverSentence = "!Logged in \n";
                                             outToClient.writeBytes(serverSentence);
                                             breakout = true;
                                         }
+                                    }
+                                }
+                                for (String key: dictUs) {
+                                    if (key.equals(currentUser)) {
+                                        loggedIN = true;
+                                        serverSentence = "!Logged in \n";
+                                        outToClient.writeBytes(serverSentence);
+                                        breakout = true;
                                     }
                                 }
                                 if (breakout) {
@@ -242,6 +275,9 @@ class Server {
                                         // nextDirectory = newPath;
                                         // CDIR_verification = true;
                                         // loggedIn = false;
+                                    } else {
+                                        serverSentence = "-Can't connect to directory because what you provided does not exist \n";
+                                        outToClient.writeBytes(serverSentence);
                                     }
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
@@ -340,8 +376,13 @@ class Server {
          while((line = data.readLine()) != null) {
              element = line.split(" ");
              if (element.length == 3) {
-                 value = new String[]{element[0], element[2]};
-                 dictAcctUser.put(element[1], value);
+                 value = new String[]{element[1], element[0]};
+                 dictAcctUser.put(element[2], value);
+             } else if (element.length == 2) {
+                 usersWithSomeAccess.add(element[0]);
+                 dictUser.put(element[0], element[1]);
+//                 value = new String[]{element[1]};
+//                 dictAcctUser.put(element[0], value);
              } else if (element.length == 1) {
                  usersWithFullAccess.add(element[0]);
              }
@@ -349,6 +390,7 @@ class Server {
          data.close();
          System.out.println(dictAcctUser);
          System.out.println(usersWithFullAccess);
+         System.out.println(usersWithSomeAccess);
     }
 }
 
