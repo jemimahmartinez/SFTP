@@ -22,6 +22,7 @@ ID: 134166382
 ### Test Cases
 
 #### USER
+This command uses your userid on the remote system to get authenticated  
 ```
 $ USER student
 FROM SERVER: +User-id valid, send account and password
@@ -43,6 +44,7 @@ $ USER hello
 FROM SERVER: -Invalid user-id, try again 
 ```
 #### ACCT
+This command uses your accountid you want to use on the remote system - also used for authentication
 ```
 $ USER student
 FROM SERVER: +User-id valid, send account and password
@@ -64,6 +66,7 @@ $ ACCT jmar948
 FROM SERVER: +Account valid, send password 
 ```
 #### PASS
+This command uses your password on the remote system to authenticate your userid and accountid 
 ```
 $ USER student
 FROM SERVER: +User-id valid, send account and password
@@ -96,18 +99,24 @@ FROM SERVER: -Wrong password, try again
 $ PASS 1234
 FROM SERVER: !Logged in 
 ```
-
+> The following commands can only be used when the user is logged in and has been authenticated into the remote system 
 #### TYPE
+This command tells the server how to store the files through ASCII (A) or Binary (B) or Continuous (C)
 
 #### LIST
+This command lists the files in the specified directory in either a verbose (V) or formatted (F) way
 
 #### CDIR
+This command will change the current working directory on the remote host to the argument passed 
 
 #### KILL
+This command will delete the file you specified from the remote system
 
 #### NAME
+This command renames the old-file-spec to be new-file-spec on the remote system
 
 ### DONE
+This command tells the remote system that you are done
 ```
 $ DONE
 FROM SERVER: +Server closing connection
@@ -115,5 +124,7 @@ FROM SERVER: +Server closing connection
 Process finished with exit code 0
 ```
 #### RETR
+This command requests that the remote system sends the specified file
 
 #### STOR
+This command tells the remote system to receive the following file and save it under that name 
