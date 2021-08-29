@@ -4,6 +4,8 @@ import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
 import java.net.*;
 import java.nio.Buffer;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -22,7 +24,7 @@ class Server {
     private static Set<String> dict = dictAcctUser.keySet();
     private static Hashtable<String, String> dictUser = new Hashtable<String, String>(); // user, password
     private static Set<String> dictUs = dictUser.keySet();
-//    private static String currentDirectory = System.getProperty();
+    private static String currentDirectory = System.getProperty("user.dir");
 
      public static void initialise() {
         try {
@@ -301,6 +303,26 @@ class Server {
                         /* file-spec
                         This will delete the file from the remote system */
                         case "KILL":
+                            String file = arg;
+                            Path path = null;
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-Can't kill because the filename is invalid \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN) {
+                                    try {
+                                        path = Paths.get(currentDirectory, file);
+                                        Files.delete(path);
+                                        serverSentence = "+" + file + " deleted";
+                                    } catch (Exception e) {
+                                        serverSentence = "-Not deleted because " + e;
+                                    }
+                                    outToClient.writeBytes(serverSentence);
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             // +<file-spec> deleted
                             // -Not deleted because (reason)
                             break;
