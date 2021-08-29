@@ -372,17 +372,17 @@ class Server {
          FileReader file = new FileReader(String.valueOf(path));
          BufferedReader data = new BufferedReader(file);
          String line;
-         String[] element, value;
+         String[] elements, value;
          while((line = data.readLine()) != null) {
-             element = line.split(" ");
-             if (element.length == 3) {
-                 value = new String[]{element[1], element[0]};
-                 dictAcctUser.put(element[2], value);
-             } else if (element.length == 2) {
-                 usersWithSomeAccess.add(element[0]);
-                 dictUser.put(element[0], element[1]);
-             } else if (element.length == 1) {
-                 usersWithFullAccess.add(element[0]);
+             elements = line.split(" ");
+             if (elements.length == 3) {
+                 value = new String[]{elements[1], elements[0]};
+                 dictAcctUser.put(elements[2], value);
+             } else if (elements.length == 2) {
+                 usersWithSomeAccess.add(elements[0]);
+                 dictUser.put(elements[0], elements[1]);
+             } else if (elements.length == 1) {
+                 usersWithFullAccess.add(elements[0]);
              }
          }
          data.close();
