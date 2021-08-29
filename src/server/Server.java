@@ -12,19 +12,18 @@ import java.util.*;
 
 class Server {
 
-    private static boolean connectionLost = false;
-//    private static String[] hasFullAccess;
+    //    private static String[] hasFullAccess;
     private static final ArrayList<String> usersWithFullAccess = new ArrayList<String>();
     private static final ArrayList<String> usersWithSomeAccess = new ArrayList<String>();
     private static Boolean loggedIN = false;
     private static String currentUser = "";
     private static String currentAccount = "";
     private static Boolean hasFullAccess = false;
-    private static Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>(); // <account, [user, password]>
-    private static Set<String> dict = dictAcctUser.keySet();
-    private static Hashtable<String, String> dictUser = new Hashtable<String, String>(); // user, password
-    private static Set<String> dictUs = dictUser.keySet();
-    private static String currentDirectory = System.getProperty("user.dir");
+    private static final Hashtable<String, String[]> dictAcctUser = new Hashtable<String, String[]>(); // <account, [user, password]>
+    private static final Set<String> dict = dictAcctUser.keySet();
+    private static final Hashtable<String, String> dictUser = new Hashtable<String, String>(); // user, password
+    private static final Set<String> dictUs = dictUser.keySet();
+    private static final String currentDirectory = System.getProperty("user.dir");
 
      public static void initialise() {
         try {
@@ -54,6 +53,7 @@ class Server {
             BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
             DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
+            boolean connectionLost = false;
             if (connectionLost) {
                 serverSentence = "-Server Out to Lunch \n";
                 outToClient.writeBytes(serverSentence);
@@ -228,7 +228,7 @@ class Server {
                         The default is binary if they type is not specified */
                         case "TYPE":
                             if (arg == null || arg.length() < 1) {
-                                serverSentence = "-Type not valid \n";
+                                serverSentence = "-Type not specified. Try again \n";
                             } else {
                                 if (loggedIN) {
                                     switch(arg){
@@ -254,6 +254,17 @@ class Server {
                         /* {F (standard formatted directory listing) | V (verbose directory listing) } directory listing
                         A null directory-path will return the current connected directory listing */
                         case "LIST":
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "Format is not specified. Try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN) {
+
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             break;
 
                         /* New-directory
@@ -261,7 +272,7 @@ class Server {
                         case "CDIR":
                             String directory = arg;
                             if (arg == null || arg.length() < 1) {
-                                serverSentence = "-Can't connect to directory because what you provided is invalid \n";
+                                serverSentence = "-Directory is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
                                 if (loggedIN) {
@@ -306,7 +317,7 @@ class Server {
                             String file = arg;
                             Path path = null;
                             if (arg == null || arg.length() < 1) {
-                                serverSentence = "-Can't kill because the filename is invalid \n";
+                                serverSentence = "-Can't kill because the filename has not been specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
                                 if (loggedIN) {
