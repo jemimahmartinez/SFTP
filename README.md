@@ -102,7 +102,16 @@ FROM SERVER: !Logged in
 > The following commands can only be used when the user is logged in and has been authenticated into the remote system 
 #### TYPE
 This command tells the server how to store the files through ASCII (A) or Binary (B) or Continuous (C)
-
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ TYPE A
+FROM SERVER: +Using Ascii mode 
+$ TYPE B
+FROM SERVER: +Using Binary mode 
+$ TYPE C
+FROM SERVER: +Using Continuous mode 
+```
 #### LIST
 This command lists the files in the specified directory in either a verbose (V) or formatted (F) way
 
