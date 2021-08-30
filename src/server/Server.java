@@ -1,10 +1,7 @@
 package server;
 
-import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.io.*;
 import java.net.*;
-import java.nio.Buffer;
-import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +27,7 @@ class Server {
 
      public static void initialise() {
         try {
-            String path = Server.class.getResource("data.txt").getPath();
+            String path = Objects.requireNonNull(Server.class.getResource("data.txt")).getPath();
             loadData(String.valueOf(path));
         } catch (IOException e) {
             System.out.println(e);
@@ -307,17 +304,16 @@ class Server {
                         /* New-directory
                         * This will change the current working directory on the remote host to the argument passed */
                         case "CDIR":
-                            String directory = arg;
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Directory is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
                                 if (loggedIN) {
-                                    File newDirectory = new File(directory);
+                                    File newDirectory = new File(arg);
                                     if (newDirectory.exists() && hasFullAccess) {
                                         // defaultDirectory = newPath
                                         // nextDirectory = ""
-                                         serverSentence = "!Changed working dir to " + directory + "\n";
+                                         serverSentence = "!Changed working dir to " + arg + "\n";
                                          outToClient.writeBytes(serverSentence);
                                     } else if (newDirectory.exists() && !hasFullAccess) {
                                          serverSentence = "+directory ok, send account/password \n";
@@ -351,26 +347,23 @@ class Server {
                         /* file-spec
                         This will delete the file from the remote system */
                         case "KILL":
-                            String file = arg;
                             Path path = null;
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Can't kill because the filename has not been specified. Try again \n";
-                                outToClient.writeBytes(serverSentence);
                             } else {
                                 if (loggedIN) {
                                     try {
-                                        path = Paths.get(currentDirectory, file);
+                                        path = Paths.get(currentDirectory, arg);
                                         Files.delete(path);
-                                        serverSentence = "+" + file + " deleted";
+                                        serverSentence = "+" + arg + " deleted";
                                     } catch (Exception e) {
                                         serverSentence = "-Not deleted because " + e;
                                     }
-                                    outToClient.writeBytes(serverSentence);
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
-                                    outToClient.writeBytes(serverSentence);
                                 }
                             }
+                            outToClient.writeBytes(serverSentence);
                             // +<file-spec> deleted
                             // -Not deleted because (reason)
                             break;
@@ -398,13 +391,11 @@ class Server {
                         /* file-spec
                         Requests that the remote system send the specified file */
                         case "RETR":
-                            String specifiedFile = arg;
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-File is not specified. Try again \n";
-                                outToClient.writeBytes(serverSentence);
                             } else {
                                 if (loggedIN) {
-                                    File sendFile = new File(currentDirectory + System.getProperty("file.separator") + specifiedFile);
+                                    File sendFile = new File(currentDirectory + System.getProperty("file.separator") + arg);
                                     if (sendFile.exists()) {
                                         readyToSend = true;
                                          sizeToSend = (int) sendFile.length();
@@ -413,12 +404,11 @@ class Server {
                                     } else {
                                         serverSentence = "-File does not exist \n";
                                     }
-                                    outToClient.writeBytes(serverSentence);
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
-                                    outToClient.writeBytes(serverSentence);
                                 }
                             }
+                            outToClient.writeBytes(serverSentence);
                             // receiving a '-' from the server should abord the RETR command
                             // <number-of-bytes-that-will-be-sent> (as ascii digits)
                             // -File doesn't exist
