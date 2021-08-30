@@ -125,10 +125,6 @@ class Server {
                                     serverSentence = "!" + user + " logged in \n";
                                     break;
                                 } else {
-//                                    currentUser = user;
-//                                    loggedIN = false;
-//                                    hasFullAccess = false;
-//                                    serverSentence = "+User-id valid, send account and password \n";
                                     loggedIN = false;
                                     hasFullAccess = false;
                                     serverSentence = "-Invalid user-id, try again \n";
