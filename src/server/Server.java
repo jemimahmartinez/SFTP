@@ -24,6 +24,9 @@ class Server {
     private static final Hashtable<String, String> dictUser = new Hashtable<String, String>(); // user, password
     private static final Set<String> dictUs = dictUser.keySet();
     private static final String currentDirectory = System.getProperty("user.dir");
+    private static Boolean readyToSend = false;
+    private static int sizeToSend = 0;
+    private static String fileToSend = "";
 
      public static void initialise() {
         try {
@@ -399,6 +402,27 @@ class Server {
                         /* file-spec
                         Requests that the remote system send the specified file */
                         case "RETR":
+                            String specifiedFile = arg;
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-File is not specified. Try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN) {
+                                    File sendFile = new File(currentDirectory + System.getProperty("file.separator") + specifiedFile);
+                                    if (sendFile.exists()) {
+                                        readyToSend = true;
+                                         sizeToSend = (int) sendFile.length();
+                                         fileToSend = currentDirectory + System.getProperty("file.separator") + fileToSend;
+                                        serverSentence = sendFile.length() + "\n";
+                                    } else {
+                                        serverSentence = "-File does not exist \n";
+                                    }
+                                    outToClient.writeBytes(serverSentence);
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             // receiving a '-' from the server should abord the RETR command
                             // <number-of-bytes-that-will-be-sent> (as ascii digits)
                             // -File doesn't exist
@@ -406,6 +430,50 @@ class Server {
                                 // SEND (ok, waiting for file)
                                 // STOP (You don't have enough space to store file)
                                     // +ok, RETR aborted
+                            break;
+
+                        case "STOP":
+                            if (loggedIN) {
+                                if (readyToSend) {
+                                    serverSentence = "+ok, RETR aborted \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            } else {
+                                serverSentence = "-Not Logged in. Please log in \n";
+                                outToClient.writeBytes(serverSentence);
+                            }
+                            readyToSend= false;
+                            sizeToSend = 0;
+                            fileToSend = "";
+                            break;
+
+                        case "SEND":
+                            if (loggedIN) {
+                                if (readyToSend) {
+//                                    OutputStream out = connectionSocket.getOutputStream();
+//                                    BufferedInputStream in = new BufferedInputStream(new FileInputStream(toSendFile));
+//                                    int count;
+//                                    byte[] buffer = new byte[1024];
+//                                    while ((count = in.read(buffer)) > 0) {
+//                                        out.write(buffer, 0, count);
+//                                        out.flush();
+//                                    }
+//                                    in.close();
+//                                    outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+//                                    serverSentence = "+Send successful \n";
+//                                    outToClient.writeBytes(serverSentence);
+//
+                                }
+                                readyToSend = false;
+                                sizeToSend = 0;
+                                fileToSend = "";
+                            } else {
+                                serverSentence = "-Not Logged in. Please log in \n";
+                                outToClient.writeBytes(serverSentence);
+                                readyToSend = false;
+                                sizeToSend = 0;
+                                fileToSend = "";
+                            }
                             break;
 
                         /* {NEW | OLD | APP} file-spec
