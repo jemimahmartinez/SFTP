@@ -273,28 +273,31 @@ class Server {
                                     String[] paths = file.list();
 
                                     serverSentence = "+" + tempPath + "\n";
-                                    outToClient.writeBytes(serverSentence);
                                     System.out.println(Arrays.toString(paths));
                                     if (paths == null) {
-                                        serverSentence = "+Empty directory \n";
-                                        outToClient.writeBytes(serverSentence);
+                                        serverSentence = serverSentence + "+Empty directory \n";
                                     } else {
                                         for (String path: paths) {
-                                            System.out.println("made it in here");
                                             if (format.equals("F")) {
-                                                serverSentence = path + "\n";
+                                                serverSentence = serverSentence + path + "\n";
                                             } else if (format.equals("V")) {
                                                 File tempFile = new File(tempPath + System.getProperty("file.separator") + path);
                                                 Date fileDate = new Date(tempFile.lastModified());
-                                                long fileSize = (tempFile.length()/1000);
-                                                serverSentence = path + "\t" + fileSize + "KB\t" + fileDate + "\n";
+                                                long fileSize = (tempFile.length());
+                                                serverSentence = serverSentence + path + "\t" + fileSize + "Bytes\t" + fileDate + "\n";
                                             } else {
                                                 serverSentence = "-Invalid format \n";
-
                                             }
-                                            outToClient.writeBytes(serverSentence);
+                                            System.out.print(serverSentence);
                                         }
                                     }
+                                    String[] toOutput = serverSentence.split("\n");
+                                    System.out.println("up to here");
+                                    for (String line: toOutput) {
+                                        System.out.println(line);
+                                        outToClient.writeBytes(line);
+                                    }
+//                                    outToClient.writeBytes(serverSentence);
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
                                     outToClient.writeBytes(serverSentence);
