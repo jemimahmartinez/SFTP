@@ -259,7 +259,42 @@ class Server {
                                 outToClient.writeBytes(serverSentence);
                             } else {
                                 if (loggedIN) {
+                                    String[] properties = arg.split(" ");
+                                    String format = properties[0].toUpperCase();
+                                    Path tempPath = Paths.get(properties[1]);
+                                    try {
+                                        File file = new File(tempPath.toString());
+                                    } catch (Exception e) {
+                                        serverSentence = "File does not exist " + e + "\n";
+                                        outToClient.writeBytes(serverSentence);
+                                        tempPath = Paths.get(currentDirectory);
+                                    }
+                                    File file = new File(tempPath.toString());
+                                    String[] paths = file.list();
 
+                                    serverSentence = "+" + tempPath + "\n";
+                                    outToClient.writeBytes(serverSentence);
+                                    System.out.println(Arrays.toString(paths));
+                                    if (paths == null) {
+                                        serverSentence = "+Empty directory \n";
+                                        outToClient.writeBytes(serverSentence);
+                                    } else {
+                                        for (String path: paths) {
+                                            System.out.println("made it in here");
+                                            if (format.equals("F")) {
+                                                serverSentence = path + "\n";
+                                            } else if (format.equals("V")) {
+                                                File tempFile = new File(tempPath + System.getProperty("file.separator") + path);
+                                                Date fileDate = new Date(tempFile.lastModified());
+                                                long fileSize = (tempFile.length()/1000);
+                                                serverSentence = path + "\t" + fileSize + "KB\t" + fileDate + "\n";
+                                            } else {
+                                                serverSentence = "-Invalid format \n";
+
+                                            }
+                                            outToClient.writeBytes(serverSentence);
+                                        }
+                                    }
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
                                     outToClient.writeBytes(serverSentence);
