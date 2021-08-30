@@ -275,11 +275,13 @@ class Server {
                                     } else {
                                         for (String path: paths) {
                                             if (format.equals("F")) {
+                                                // formatted with just the file names
                                                 serverSentence = serverSentence + path + "\n";
                                             } else if (format.equals("V")) {
+                                                // formatted with details such as the file name, the file size and the date it was last modified
                                                 File tempFile = new File(tempPath + System.getProperty("file.separator") + path);
-                                                Date fileDate = new Date(tempFile.lastModified());
                                                 long fileSize = (tempFile.length());
+                                                Date fileDate = new Date(tempFile.lastModified());
                                                 serverSentence = serverSentence + path + "\t" + fileSize + "Bytes\t" + fileDate + "\n";
                                             } else {
                                                 serverSentence = "-Invalid format \n";
