@@ -446,30 +446,27 @@ class Server {
                         case "SEND":
                             if (loggedIN) {
                                 if (readyToSend) {
-//                                    OutputStream out = connectionSocket.getOutputStream();
-//                                    BufferedInputStream in = new BufferedInputStream(new FileInputStream(toSendFile));
-//                                    int count;
-//                                    byte[] buffer = new byte[1024];
-//                                    while ((count = in.read(buffer)) > 0) {
-//                                        out.write(buffer, 0, count);
-//                                        out.flush();
-//                                    }
-//                                    in.close();
-//                                    outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-//                                    serverSentence = "+Send successful \n";
-//                                    outToClient.writeBytes(serverSentence);
+                                    OutputStream out = connectionSocket.getOutputStream();
+                                    BufferedInputStream in = new BufferedInputStream(new FileInputStream(fileToSend));
+                                    int counter;
+                                    byte[] buffer = new byte[1024];
+                                    while ((counter = in.read(buffer)) > 0) {
+                                        out.write(buffer, 0, counter);
+                                        out.flush();
+                                    }
+                                    in.close();
+                                    outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+                                    serverSentence = "+Send successful \n";
+                                    outToClient.writeBytes(serverSentence);
 //
                                 }
-                                readyToSend = false;
-                                sizeToSend = 0;
-                                fileToSend = "";
                             } else {
                                 serverSentence = "-Not Logged in. Please log in \n";
                                 outToClient.writeBytes(serverSentence);
-                                readyToSend = false;
-                                sizeToSend = 0;
-                                fileToSend = "";
                             }
+                            readyToSend = false;
+                            sizeToSend = 0;
+                            fileToSend = "";
                             break;
 
                         /* {NEW | OLD | APP} file-spec
