@@ -186,7 +186,22 @@ FROM SERVER: +Server closing connection
 Process finished with exit code 0
 ```
 #### RETR
-This command requests that the remote system sends the specified file
-
+This command requests that the remote system sends the specified file and returns the number of characters used in this file
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ RETR file1.txt
+FROM SERVER: 12
+```
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ RETR invalidfile
+FROM SERVER: -File does not exist 
+```
 #### STOR
 This command tells the remote system to receive the following file and save it under that name 
