@@ -154,6 +154,15 @@ This command renames the old-file-spec to be new-file-spec on the remote system
 #### DONE
 This command tells the remote system that you are done
 ```
+FROM SERVER: +Server SFTP Service 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ DONE
+FROM SERVER: +Server closing connection
+
+Process finished with exit code 0
+```
+```
 $ DONE
 FROM SERVER: +Server closing connection
 
