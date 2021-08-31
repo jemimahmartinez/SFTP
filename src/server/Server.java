@@ -424,10 +424,11 @@ class Server {
                             } else {
                                 if (loggedIN) {
                                     File oldFile = new File(currentDirectory + System.getProperty("file.separator") + oldFileSpec);
-                                    File newFile = new File(currentDirectory + System.getProperty("file.separator") + newFileSpec);
+                                    File newFile = new File(currentDirectory + System.getProperty("file.separator") + file);
                                     if (tobeNext) {
                                         if (oldFile.renameTo(newFile)) {
-                                            serverSentence = "+" + oldFileSpec + " renamed to " + newFileSpec + "\n";
+                                            serverSentence = "+" + oldFileSpec + " renamed to " + file + "\n";
+                                            tobeNext = false;
                                         } else {
                                             serverSentence = "-File was not changed because it is not valid \n";
                                         }
