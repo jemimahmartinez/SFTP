@@ -9,7 +9,6 @@ import java.util.*;
 
 class Server {
 
-    //    private static String[] hasFullAccess;
     private static final ArrayList<String> usersWithFullAccess = new ArrayList<String>();
     private static final ArrayList<String> usersWithSomeAccess = new ArrayList<String>();
     private static Boolean loggedIN = false;
@@ -20,7 +19,9 @@ class Server {
     private static final Set<String> dict = dictAcctUser.keySet();
     private static final Hashtable<String, String> dictUser = new Hashtable<String, String>(); // user, password
     private static final Set<String> dictUs = dictUser.keySet();
-    private static final String currentDirectory = System.getProperty("user.dir");
+    private static String currentDirectory = System.getProperty("user.dir");
+    private static String nextDirectory = "";
+    private static Boolean confirmedForCDIR = false;
     private static Boolean readyToSend = false;
     private static int sizeToSend = 0;
     private static String fileToSend = "";
@@ -111,6 +112,7 @@ class Server {
                                     if (dictAcctUser.get(key)[1].equals(user)) {
                                         loggedIN = false;
                                         currentUser = user;
+                                        currentAccount = "";
                                         hasFullAccess = false;
                                         serverSentence = "+User-id valid, send account and password \n";
                                         outToClient.writeBytes(serverSentence);
@@ -143,7 +145,7 @@ class Server {
                                 serverSentence = "!Account valid, logged-in \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
-                                if (loggedIN || account.equals(currentAccount)) { // if already logged in
+                                if (loggedIN) { // if already logged in 
                                     serverSentence = "!Account valid, logged-in \n";
                                 }
                                 else { // if the account is valid
@@ -192,7 +194,14 @@ class Server {
                                         // check if the account associated with the user is the same as the currentAccount
                                         if (key.equals(currentAccount) && dictAcctUser.get(key)[0].equals(password)) {
                                             loggedIN = true;
-                                            serverSentence = "!Logged in \n";
+                                            if (confirmedForCDIR) {
+                                                serverSentence = "!Logged in \t !Changed working dir to " + nextDirectory +"\n";
+                                                currentDirectory = nextDirectory;
+                                                nextDirectory = "";
+                                                confirmedForCDIR = false;
+                                            } else {
+                                                serverSentence = "!Logged in \n";
+                                            }
                                             outToClient.writeBytes(serverSentence);
                                             breakout = true;
                                         }
@@ -313,16 +322,18 @@ class Server {
                                 if (loggedIN) {
                                     File newDirectory = new File(arg);
                                     if (newDirectory.exists() && hasFullAccess) {
-                                        // defaultDirectory = newPath
-                                        // nextDirectory = ""
+                                         currentDirectory = arg;
+                                         nextDirectory = "";
                                          serverSentence = "!Changed working dir to " + arg + "\n";
                                          outToClient.writeBytes(serverSentence);
                                     } else if (newDirectory.exists() && !hasFullAccess) {
                                          serverSentence = "+directory ok, send account/password \n";
                                          outToClient.writeBytes(serverSentence);
-                                        // nextDirectory = newPath;
-                                        // CDIR_verification = true;
-                                        // loggedIn = false;
+                                         hasFullAccess = false;
+                                         nextDirectory = arg;
+                                         confirmedForCDIR = true;
+                                         currentAccount = "";
+                                         loggedIN = false;
                                     } else {
                                         serverSentence = "-Can't connect to directory because what you provided does not exist \n";
                                         outToClient.writeBytes(serverSentence);
@@ -380,6 +391,9 @@ class Server {
                             // The server replies with:
                                 // +<old-file-spec> renamed to <new-file-spec>
                                 // -File wasn't renamed because (reason)
+                            break;
+
+                        case "TOBE":
                             break;
 
                         /* Tells the remote system you are done */
@@ -480,6 +494,10 @@ class Server {
                                     // +ok, waiting for file
 
                             break;
+
+                        case "SIZE":
+                            break;
+
                         default:
                             break;
                     }
