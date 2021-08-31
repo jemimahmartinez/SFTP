@@ -117,7 +117,34 @@ This command lists the files in the specified directory in either a verbose (V) 
 
 #### CDIR
 This command will change the current working directory on the remote host to the argument passed 
-
+``` 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+```
+```
+$ USER TA
+FROM SERVER: !User-id valid, send password 
+$ PASS assistant2
+FROM SERVER: !Logged in 
+$ CDIR random
+FROM SERVER: -Can't connect to directory because what you provided does not exist 
+```
+```
+$ USER student
+FROM SERVER: +User-id valid, send account and password 
+$ ACCT jmar948
+FROM SERVER: +Account valid, send password 
+$ PASS 1234
+FROM SERVER: !Logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: +directory ok, send account/password 
+$ ACCT jmar948
+FROM SERVER: +Account valid, send password 
+$ PASS 1234
+FROM SERVER: !Logged in 	 !Changed working dir to C:\Users\jemje\forTesting
+```
 #### KILL
 This command will delete the file you specified from the remote system
 

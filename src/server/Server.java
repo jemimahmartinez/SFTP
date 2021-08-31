@@ -145,7 +145,7 @@ class Server {
                                 serverSentence = "!Account valid, logged-in \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
-                                if (loggedIN) { // if already logged in 
+                                if (loggedIN) { // if already logged in
                                     serverSentence = "!Account valid, logged-in \n";
                                 }
                                 else { // if the account is valid
