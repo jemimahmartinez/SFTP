@@ -28,6 +28,7 @@ class Server {
     private static String oldFileSpec = "";
     private static String newFileSpec = "";
     private static Boolean tobeNext = false;
+    private static String storageType = "";
 
      public static void initialise() {
         try {
@@ -524,6 +525,47 @@ class Server {
                         /* {NEW | OLD | APP} file-spec
                         Tells the remote system to receive the following file and save it under that name */
                         case "STOR":
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-File is not specified. Try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN) {
+                                    String[] properties = arg.split(" ");
+                                    storageType = properties[0];
+                                    String[] directory = properties[1].split("\\\\");
+                                    String fileName = directory[directory.length - 1];
+                                    File tempDirectory = new File (currentDirectory + System.getProperty("file.separator") + fileName);
+                                    switch (storageType) {
+                                        case "NEW":
+                                            if (tempDirectory.exists()) {
+                                                serverSentence = "+File exists, will create new generation of file \n";
+                                            } else {
+                                                serverSentence = "-File exists, but system doesn't support generations \n";
+                                            }
+                                            outToClient.writeBytes(serverSentence);
+                                            break;
+                                        case "OLD":
+                                            if (tempDirectory.exists()) {
+                                                serverSentence = "+Will write over old file \n";
+                                            } else {
+                                                serverSentence = "+Will create new file \n";
+                                            }
+                                            outToClient.writeBytes(serverSentence);
+                                            break;
+                                        case "APP":
+                                            if (tempDirectory.exists()) {
+                                                serverSentence = "+Will append to file \n";
+                                            } else {
+                                                serverSentence = "+Will create file \n";
+                                            }
+                                            outToClient.writeBytes(serverSentence);
+                                            break;
+                                    }
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             // receiving a '-' should abort the STOR command
                             // NEW = specifies it should create a new generation of the file and not delete the existing one
                                 // +File exists, will create new generation of file
@@ -542,6 +584,17 @@ class Server {
                             break;
 
                         case "SIZE":
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-Size is not specified. Try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN) {
+
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             break;
 
                         default:
