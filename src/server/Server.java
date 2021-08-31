@@ -25,6 +25,9 @@ class Server {
     private static Boolean readyToSend = false;
     private static int sizeToSend = 0;
     private static String fileToSend = "";
+    private static String oldFileSpec = "";
+    private static String newFileSpec = "";
+    private static Boolean tobeNext = false;
 
      public static void initialise() {
         try {
@@ -381,9 +384,28 @@ class Server {
                             // -Not deleted because (reason)
                             break;
 
-                        /* old-file-spec
-                        Renames the old-file-spec to be new-file-spec on the remote system */
-                        case "NAME":
+                        /* Checks if a file exists or not */
+                        case "NAME": // arg = file
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-File name is not specified. Try again \n";
+                                outToClient.writeBytes(serverSentence);
+                            } else {
+                                if (loggedIN) {
+                                    File tempDirectory = new File(currentDirectory + System.getProperty("file.separator") + arg);
+                                    if (tempDirectory.exists()) {
+                                        serverSentence = "+File exists \n";
+                                        oldFileSpec = arg;
+                                        tobeNext = true;
+                                    } else {
+                                        serverSentence = "-Can't find " + oldFileSpec + "NAME command is aborted, don't send TOBE \n";
+                                    }
+                                    outToClient.writeBytes(serverSentence);
+                                    System.out.println(currentDirectory);
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                    outToClient.writeBytes(serverSentence);
+                                }
+                            }
                             // +File exists
                             // -Can't find <old-file-spec> = NAME command is aborted, don't send TOBE
                             // if you receive a '+'
@@ -393,7 +415,30 @@ class Server {
                                 // -File wasn't renamed because (reason)
                             break;
 
+                        /* old-file-spec
+                        Renames the old-file-spec to be new-file-spec on the remote system */
                         case "TOBE":
+                            String file = arg;
+                            if (arg == null || arg.length() < 1) {
+                                serverSentence = "-File name is not specified. Try again \n";
+                            } else {
+                                if (loggedIN) {
+                                    File oldFile = new File(currentDirectory + System.getProperty("file.separator") + oldFileSpec);
+                                    File newFile = new File(currentDirectory + System.getProperty("file.separator") + newFileSpec);
+                                    if (tobeNext) {
+                                        if (oldFile.renameTo(newFile)) {
+                                            serverSentence = "+" + oldFileSpec + " renamed to " + newFileSpec + "\n";
+                                        } else {
+                                            serverSentence = "-File was not changed because it is not valid \n";
+                                        }
+                                    } else {
+                                        serverSentence = "- File name was not changed because a new name was provided\n";
+                                    }
+                                } else {
+                                    serverSentence = "-Not Logged in. Please log in \n";
+                                }
+                            }
+                            outToClient.writeBytes(serverSentence);
                             break;
 
                         /* Tells the remote system you are done */
