@@ -114,7 +114,24 @@ FROM SERVER: +Using Continuous mode
 ```
 #### LIST
 This command lists the files in the specified directory in either a verbose (V) or formatted (F) way
-
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting
+file1.txt
+file2.txt
+Folder
+```
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ LIST V C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting
+file1.txt	12Bytes	Mon Aug 30 20:31:45 NZST 2021
+file2.txt	15Bytes	Mon Aug 30 20:32:45 NZST 2021
+Folder	0Bytes	Mon Aug 30 21:16:53 NZST 2021
+```
 #### CDIR
 This command will change the current working directory on the remote host to the argument passed 
 ``` 

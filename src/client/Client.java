@@ -28,6 +28,7 @@ class Client {
             modifiedSentence = inFromServer.readLine();
 
             System.out.println("FROM SERVER: " + modifiedSentence);
+//            System.out.println(modifiedSentence);
 
             if (modifiedSentence.equals("+Server closing connection")) {
                 connected = false;
