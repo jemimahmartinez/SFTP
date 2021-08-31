@@ -168,6 +168,8 @@ This command will delete the file you specified from the remote system
 #### NAME
 This command renames the old-file-spec to be new-file-spec on the remote system
 
+##### TOBE
+
 #### DONE
 This command tells the remote system that you are done
 ```
@@ -203,5 +205,9 @@ FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
 $ RETR invalidfile
 FROM SERVER: -File does not exist 
 ```
+##### SEND
+
+##### STOP
+
 #### STOR
 This command tells the remote system to receive the following file and save it under that name 
