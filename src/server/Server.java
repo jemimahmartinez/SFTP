@@ -545,6 +545,8 @@ class Server {
                             break;
 
                         default:
+                            serverSentence = "-Invalid command. Please try again \n";
+                            outToClient.writeBytes(serverSentence);
                             break;
                     }
                 }
