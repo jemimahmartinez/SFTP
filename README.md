@@ -193,7 +193,31 @@ FROM SERVER: !Logged in 	 !Changed working dir to C:\Users\jemje\forTesting
 ```
 #### KILL
 This command will delete the file you specified from the remote system
-
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 
+$ KILL file2.txt
+FROM SERVER: +file2.txt deleted
+```
+```
+FROM SERVER: +Server SFTP Service 
+$ KILL file2.txt
+FROM SERVER: -Not Logged in. Please log in
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 
+$ KILL
+FROM SERVER: -Can't kill because the filename has not been specified. Try again
+$ KILL file2.txt
+FROM SERVER: +file2.txt deleted
+```
 #### NAME
 This command renames the old-file-spec to be new-file-spec on the remote system
 ```
