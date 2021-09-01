@@ -468,7 +468,7 @@ public class Server {
                                     if (sendFile.exists()) {
                                         readyToSend = true;
                                         sizeToSend = (int) sendFile.length();
-                                        fileToSend = currentDirectory + System.getProperty("file.separator") + fileToSend;
+                                        fileToSend = currentDirectory + System.getProperty("file.separator") + arg;
                                         serverSentence = String.valueOf(sizeToSend) + "\n";
                                     } else {
                                         serverSentence = "-File does not exist \n";
@@ -491,12 +491,13 @@ public class Server {
                             if (loggedIN) {
                                 if (readyToSend) {
                                     serverSentence = "+ok, RETR aborted \n";
-                                    outToClient.writeBytes(serverSentence);
+                                } else {
+                                    serverSentence = "-Need to send a RETR command first before doing the STOP command \n";
                                 }
                             } else {
                                 serverSentence = "-Not Logged in. Please log in \n";
-                                outToClient.writeBytes(serverSentence);
                             }
+                            outToClient.writeBytes(serverSentence);
                             readyToSend= false;
                             sizeToSend = 0;
                             fileToSend = "";
@@ -515,13 +516,14 @@ public class Server {
                                     }
                                     in.close();
                                     outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-                                    serverSentence = "+Send successful \n";
-                                    outToClient.writeBytes(serverSentence);
+                                    serverSentence = "\t +Send successful \n";
+                                } else {
+                                    serverSentence = "-Need to send a RETR command first before doing the SEND command \n";
                                 }
                             } else {
                                 serverSentence = "-Not Logged in. Please log in \n";
-                                outToClient.writeBytes(serverSentence);
                             }
+                            outToClient.writeBytes(serverSentence);
                             readyToSend = false;
                             sizeToSend = 0;
                             fileToSend = "";

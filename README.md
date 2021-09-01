@@ -303,9 +303,65 @@ $ RETR file1.txt
 FROM SERVER: 12
 ```
 ##### SEND
-
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
+$ RETR file2.txt
+FROM SERVER: 15
+$ SEND
+FROM SERVER: hello world x2!	 +Send successful 
+```
+```
+FROM SERVER: +Server SFTP Service 
+$ SEND
+FROM SERVER: -Not Logged in. Please log in 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ SEND
+FROM SERVER: -Need to send a RETR command first before doing the SEND command 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
+$ RETR file2.txt
+FROM SERVER: 15
+$ SEND
+FROM SERVER: hello world x2!	 +Send successful 
+```
 ##### STOP
-
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
+$ RETR file2.txt
+FROM SERVER: 15
+$ STOP
+FROM SERVER: +ok, RETR aborted 
+```
+```
+FROM SERVER: +Server SFTP Service 
+$ STOP
+FROM SERVER: -Not Logged in. Please log in 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ STOP
+FROM SERVER: -Need to send a RETR command first before doing the STOP command 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
+$ RETR file1.txt
+FROM SERVER: 12
+$ STOP
+FROM SERVER: +ok, RETR aborted 
+```
 #### STOR
 This command tells the remote system to receive the following file and save it under that name 
 
