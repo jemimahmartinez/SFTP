@@ -26,9 +26,11 @@ class Server {
     private static int sizeToSend = 0;
     private static String fileToSend = "";
     private static String oldFileSpec = "";
-    private static String newFileSpec = "";
+//    private static String newFileSpec = "";
     private static Boolean tobeNext = false;
     private static String storageType = "";
+    private static String fileName = "";
+    private static final Boolean supportsGenerations = true;
 
      public static void initialise() {
         try {
@@ -461,9 +463,9 @@ class Server {
                                     File sendFile = new File(currentDirectory + System.getProperty("file.separator") + arg);
                                     if (sendFile.exists()) {
                                         readyToSend = true;
-                                         sizeToSend = (int) sendFile.length();
-                                         fileToSend = currentDirectory + System.getProperty("file.separator") + fileToSend;
-                                        serverSentence = sendFile.length() + "\n";
+                                        sizeToSend = (int) sendFile.length();
+                                        fileToSend = currentDirectory + System.getProperty("file.separator") + fileToSend;
+                                        serverSentence = String.valueOf(sizeToSend) + "\n";
                                     } else {
                                         serverSentence = "-File does not exist \n";
                                     }
@@ -531,16 +533,20 @@ class Server {
                             } else {
                                 if (loggedIN) {
                                     String[] properties = arg.split(" ");
-                                    storageType = properties[0];
+                                    storageType = properties[0].toUpperCase();
                                     String[] directory = properties[1].split("\\\\");
-                                    String fileName = directory[directory.length - 1];
+                                    fileName = directory[directory.length - 1];
+                                    System.out.println("over here");
+                                    System.out.println(fileName);
                                     File tempDirectory = new File (currentDirectory + System.getProperty("file.separator") + fileName);
                                     switch (storageType) {
                                         case "NEW":
-                                            if (tempDirectory.exists()) {
+                                            if (!supportsGenerations) {
+                                                serverSentence = "-File exists, but system doesn't support generations \n";
+                                            } else if (tempDirectory.exists()) {
                                                 serverSentence = "+File exists, will create new generation of file \n";
                                             } else {
-                                                serverSentence = "-File exists, but system doesn't support generations \n";
+                                                serverSentence = "+File does not exist, will create new file \n";
                                             }
                                             outToClient.writeBytes(serverSentence);
                                             break;
@@ -569,6 +575,7 @@ class Server {
                             // receiving a '-' should abort the STOR command
                             // NEW = specifies it should create a new generation of the file and not delete the existing one
                                 // +File exists, will create new generation of file
+                                // +File does not exist, will create new file
                                 // -File exists, but system doesn't support generations
                             // OLD = specifies it should write over the existing file, if any, or else create a new file with the specified name
                                 // +Will write over old file
@@ -588,8 +595,54 @@ class Server {
                                 serverSentence = "-Size is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
+                                int size = Integer.parseInt(arg);
+                                File fileSpace = new File (currentDirectory);
+                                long amountOfSpace = fileSpace.getFreeSpace();
+                                boolean isTextFile = true;
+                                FileOutputStream FOS = null;
                                 if (loggedIN) {
-
+                                    if (size < amountOfSpace) {
+                                        switch (storageType) {
+                                            case "NEW":
+                                                String[] fileInfo = fileName.split("\\.");
+                                                String name = fileInfo[0];
+                                                String fileType = fileInfo[1];
+                                                File tempDirectory = new File(currentDirectory +  System.getProperty("file.separator") + fileName);
+                                                int version = 1;
+                                                while (tempDirectory.exists()) {
+                                                    fileName = fileName + "(" + version + ")." + fileType;
+                                                    tempDirectory = new File(currentDirectory +  System.getProperty("file.separator") + fileName);
+                                                    version++;
+                                                }
+                                                FOS = new FileOutputStream(currentDirectory +  System.getProperty("file.separator") + fileName);
+                                                break;
+                                            case "OLD":
+                                                FOS = new FileOutputStream(currentDirectory +  System.getProperty("file.separator") + fileName);
+                                                break;
+                                            case "APP":
+                                                if (fileName.substring(fileName.length() - 4, fileName.length()).equals(".txt")) {
+                                                    FOS = new FileOutputStream(currentDirectory + System.getProperty("file.separator") + fileName, true);
+                                                } else {
+                                                    serverSentence = "-Cannot append file because it can only append text files \n";
+                                                    outToClient.writeBytes(serverSentence);
+                                                    isTextFile = false;
+                                                }
+                                                break;
+                                        }
+                                        if(isTextFile){
+                                            serverSentence = "+ok waiting for file," + "+Saved " + fileName + "\n";
+                                            outToClient.writeBytes(serverSentence);
+                                            BufferedOutputStream OUT = new BufferedOutputStream(FOS);
+                                            for (int i = 0; i < size; i++) {
+                                                OUT.write(inFromClient.read());
+                                            }
+                                            OUT.close();
+                                            FOS.close();
+                                        }
+                                    } else {
+                                        serverSentence = "-No space to send it \n";
+                                        outToClient.writeBytes(serverSentence);
+                                    }
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
                                     outToClient.writeBytes(serverSentence);
@@ -597,10 +650,10 @@ class Server {
                             }
                             break;
 
-                        default:
-                            serverSentence = "-Invalid command. Please try again \n";
-                            outToClient.writeBytes(serverSentence);
-                            break;
+//                        default:
+//                            serverSentence = "-Invalid command. Please try again \n";
+//                            outToClient.writeBytes(serverSentence);
+//                            break;
                     }
                 }
             }
