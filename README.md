@@ -9,10 +9,20 @@ Author: Jemimah Martinez
 UPI: jmar948  
 ID: 134166382
 
-### File Structure
-
 ### Client Commands
+- USER - Authenticates the user identification 
+- ACCT - Authenticates account identification
+- PASS - Authenticates password associated to the user
+- TYPE - Specifies file storage
+- LIST - Lists files in current or specified directory given the format
+- CDIR - Changes to a specified directory
+- KILL - Deletes a specified file in the current directory
+- NAME/TOBE - Renames a specified file in the current directory
+- DONE - Closes connection
+- RETR/STOP/SEND - Retrieves a specified file and saves it at a user specified location
+- STOR/SIZE - Sends a specified file and stores is according to user preference
 
+These commands are case insensitive, so this means that the commands above can be used in lowercase, uppercase, or a mix of both characters
 ### User Details
 The different types of users:  
 
@@ -58,7 +68,7 @@ In the Project Tab:
    Should see `FROM SERVER: +Server SFTP Service `
 6. Continue with test cases 
 ### Test Cases
-
+Can use the testing files in the `jmar948\jmar948\forTesting` folder provided
 #### USER
 This command uses your userid on the remote system to get authenticated  
 ```
