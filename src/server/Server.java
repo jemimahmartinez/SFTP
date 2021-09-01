@@ -512,7 +512,6 @@ class Server {
                                     outToClient = new DataOutputStream(connectionSocket.getOutputStream());
                                     serverSentence = "+Send successful \n";
                                     outToClient.writeBytes(serverSentence);
-//
                                 }
                             } else {
                                 serverSentence = "-Not Logged in. Please log in \n";
