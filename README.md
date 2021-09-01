@@ -82,7 +82,7 @@ $ USER hello
 FROM SERVER: -Invalid user-id, try again 
 ```
 #### ACCT
-This command uses your accountid you want to use on the remote system - also used for authentication
+This command uses your account identification you want to use on the remote system - also used for authentication
 ```
 $ USER student
 FROM SERVER: +User-id valid, send account and password
@@ -104,7 +104,7 @@ $ ACCT jmar948
 FROM SERVER: +Account valid, send password 
 ```
 #### PASS
-This command uses your password on the remote system to authenticate your userid and accountid 
+This command uses your password on the remote system to authenticate your user and account ids
 ```
 $ USER student
 FROM SERVER: +User-id valid, send account and password
@@ -191,7 +191,7 @@ $ LIST F random
 FROM SERVER: +random	+Empty directory  
 ```
 #### CDIR
-This command will change the current working directory on the remote host to the argument passed 
+This command will change the current working directory on the remote host to the argument passed. If the user has full access like `guest`, then they will not need to reenter their credentials again to reauthenticate themselves  
 ``` 
 $ USER guest
 FROM SERVER: !guest logged in 
@@ -315,7 +315,7 @@ $ LIST F C:\Users\jemje\forTesting
 FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 
 ```
 #### DONE
-This command tells the remote system that you are done
+This command tells the remote system that you are done and closes the connection
 ```
 FROM SERVER: +Server SFTP Service 
 $ USER guest
@@ -332,7 +332,7 @@ FROM SERVER: +Server closing connection
 Process finished with exit code 0
 ```
 #### RETR
-This command requests that the remote system sends the specified file and returns the number of characters used in this file
+This command requests that the remote system sends the specified file and returns the number of characters used in this file, which in this case, is the size
 ```
 $ USER guest
 FROM SERVER: !guest logged in 
@@ -364,37 +364,8 @@ FROM SERVER: -File does not exist
 $ RETR file1.txt
 FROM SERVER: 12
 ```
-##### SEND
-```
-$ USER guest
-FROM SERVER: !guest logged in 
-$ CDIR C:\Users\jemje\forTesting
-FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
-$ LIST F C:\Users\jemje\forTesting
-FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
-$ RETR file2.txt
-FROM SERVER: 15
-$ SEND
-FROM SERVER: hello world x2!	 +Send successful 
-```
-```
-FROM SERVER: +Server SFTP Service 
-$ SEND
-FROM SERVER: -Not Logged in. Please log in 
-$ USER guest
-FROM SERVER: !guest logged in 
-$ SEND
-FROM SERVER: -Need to send a RETR command first before doing the SEND command 
-$ CDIR C:\Users\jemje\forTesting
-FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
-$ LIST F C:\Users\jemje\forTesting
-FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
-$ RETR file2.txt
-FROM SERVER: 15
-$ SEND
-FROM SERVER: hello world x2!	 +Send successful 
-```
 ##### STOP
+This command can also only be used after the RETR command. This is where the RETR command is aborted 
 ```
 $ USER guest
 FROM SERVER: !guest logged in 
@@ -424,38 +395,39 @@ FROM SERVER: 12
 $ STOP
 FROM SERVER: +ok, RETR aborted 
 ```
-#### STOR
-This command tells the remote system to receive the following file and save it under that name 
+##### SEND
+This command is only used after entering the RETR command. This is where the server verifies that the file refered to in the RETR command can be sent (which is where the system has enough space to send)
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
+$ RETR file2.txt
+FROM SERVER: 15
+$ SEND
+FROM SERVER: hello world x2!	 +Send successful 
+```
 ```
 FROM SERVER: +Server SFTP Service 
-$ STOR NEW C:\Users\jemje\forTesting\file1.txt
-FROM SERVER: -Not Logged in. Please log in 
-$ STOR APP C:\Users\jemje\forTesting\file2.txt
-FROM SERVER: -Not Logged in. Please log in 
-$ STOR OLD C:\Users\jemje\forTesting\file1.txt
+$ SEND
 FROM SERVER: -Not Logged in. Please log in 
 $ USER guest
 FROM SERVER: !guest logged in 
-$ CDIR C:\Users\jemje\forTesting\Folder
-FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting\Folder
-$ STOR NEW C:\Users\jemje\forTesting\file2.txt
-FROM SERVER: +File does not exist, will create new file  
-```
-```
-$ LIST F C:\Users\jemje\forTesting\Folder
-FROM SERVER: +C:\Users\jemje\forTesting\Folder	hi.txt, 	
-$ STOR NEW C:\Users\jemjem\forTesting\Folder\hi.txt
-FROM SERVER: +File exists, will create new generation of file  
-```
-```
-$ USER guest
-FROM SERVER: !guest logged in 
-$ CDIR C:\Users\jemje\forTesting\Folder
-FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting\Folder
-$ STOR OLD C:\Users\jemje\forTesting\Folder\hi.txt
-FROM SERVER: +Will write over old file 
+$ SEND
+FROM SERVER: -Need to send a RETR command first before doing the SEND command 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
+$ RETR file2.txt
+FROM SERVER: 15
+$ SEND
+FROM SERVER: hello world x2!	 +Send successful 
 ```
 #### SIZE
+This command outputs whether the size of the file is acceptable from the STOR command
 ```
 FROM SERVER: +Server SFTP Service 
 $ USER guest

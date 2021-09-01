@@ -60,6 +60,8 @@ public class Server {
             DataOutputStream  outToClient = new DataOutputStream(connectionSocket.getOutputStream());
 
             boolean connectionLost = false;
+
+            // Ensuring that the server is connected
             if (connectionLost) {
                 serverSentence = "-Server Out to Lunch \n";
                 outToClient.writeBytes(serverSentence);
@@ -73,6 +75,9 @@ public class Server {
                     outToClient =
                             new DataOutputStream(connectionSocket.getOutputStream());
                     clientSentence = inFromClient.readLine();
+
+                    // Separates the input from the client into two, the command and argument
+                    // (typically the properties to the associated command)
                     if (clientSentence.length() >= 4) {
                         cmd = clientSentence.substring(0, 4).toUpperCase();
                         try {
@@ -85,14 +90,18 @@ public class Server {
                         arg = "";
                     }
                     switch(cmd) {
-                        /* user-id
-                        Your userid on the remote system */
+
+
+                        /* USER command
+                        uses your userid on the remote system to get authenticated   */
+
                         case "USER":
                             String user = arg;
                             if (arg == null || arg.length() < 1) {
-                                // -Invalid user-id, try again
+                                // If a user identification was not provided
                                 serverSentence = "-Invalid user-id, try again \n";
                             } else {
+                                // Do not need an account or password/you specified a user-id not needing them
                                 for (String aUser : usersWithFullAccess) {
                                     if (user.equals(aUser)) {
                                         loggedIN = true;
@@ -103,6 +112,8 @@ public class Server {
                                         break;
                                     }
                                 }
+                                // Do not need an account you specified a user-id not needing them
+                                // But will need to provide a password
                                 for (String aUser: usersWithSomeAccess) {
                                     if (user.equals(aUser)) {
                                         loggedIN = false;
@@ -113,7 +124,8 @@ public class Server {
                                         break;
                                     }
                                 }
-                                for (String key: dict) { // Check if user is valid
+                                // Check if user is valid
+                                for (String key: dict) {
                                     if (dictAcctUser.get(key)[1].equals(user)) {
                                         loggedIN = false;
                                         currentUser = user;
@@ -124,41 +136,47 @@ public class Server {
                                         break;
                                     }
                                 }
-                                // user is already logged in
+                                // User is already logged in
                                 if (loggedIN || user.equals(currentUser)) {
                                     serverSentence = "!" + user + " logged in \n";
                                     break;
                                 } else {
+                                    // If the user provided is not recognised by the system
                                     loggedIN = false;
                                     hasFullAccess = false;
                                     serverSentence = "-Invalid user-id, try again \n";
                                 }
                             }
                             outToClient.writeBytes(serverSentence);
-                            // !<user-id> logged in = do not need an account or password/you specified a user-id not needing them
-                            // +User-id valid, send account and password
                             break;
 
-                        /* account
-                        The account you want to use (usually used for billing) on the remote system */
+
+                        /* ACCT command
+                        uses your account identification you want to use on the remote system - also used for authentication */
+
                         case "ACCT":
                             String account = arg;
+                            // If an account identification was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Invalid account, try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else if (hasFullAccess) {
+                                // Account was ok/not needed = skip password
                                 serverSentence = "!Account valid, logged-in \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
-                                if (loggedIN) { // if already logged in
+                                // If already logged in
+                                if (loggedIN) {
                                     serverSentence = "!Account valid, logged-in \n";
                                 }
-                                else { // if the account is valid
+                                else {
+                                    // If the account is valid
                                     for (String key: dict) {
-                                        // check if the user you are on (through iterating) is the same as the currentUser
+                                        // Check if the user you are on (through iterating) is the same as the currentUser
                                         if (dictAcctUser.get(key)[1].equals(currentUser)) {
-                                            // check if the account associated with the user is the same as the currentAccount
+                                            // Check if the account associated with the user is the same as the currentAccount
                                             if (key.equals(arg)) {
+                                                // Account ok, send password next
                                                 currentAccount = account;
                                                 loggedIN = false;
                                                 serverSentence = "+Account valid, send password \n";
@@ -167,44 +185,49 @@ public class Server {
                                             }
                                         }
                                     }
+                                    // To break out of the switch case statement
                                     if (breakout) {
                                         breakout = false;
                                         break;
                                     }
-                                    // if account is invalid
+                                    // If account is invalid
                                     loggedIN = false;
                                     serverSentence = "-Invalid account, try again \n";
                                 }
                                 outToClient.writeBytes(serverSentence);
                             }
-                            // !Account valid, logged-in = account was ok/not needed. skip password
-                            // +Account valid, send password = account ok/not needed. send your password next
-                            // -Invalid account, try again
                             break;
 
-                        /* password
-                        Your password on the remote system */
+
+                        /* PASS command
+                        uses your password on the remote system to authenticate your user and account ids */
+
                         case "PASS":
                             String password = arg;
+                            // If a password was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Wrong password, try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else if (hasFullAccess || loggedIN) {
+                                // Password is ok and you can begin file transfers
                                 serverSentence = "!Logged in \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
                                 for (String key: dict) {
-                                    // check if the user you are on (through iterating) is the same as the currentUser
+                                    // Check if the user you are on (through iterating) is the same as the currentUser
                                     if (dictAcctUser.get(key)[1].equals(currentUser)) {
-                                        // check if the account associated with the user is the same as the currentAccount
+                                        // Check if the account associated with the user is the same as the currentAccount
                                         if (key.equals(currentAccount) && dictAcctUser.get(key)[0].equals(password)) {
                                             loggedIN = true;
                                             if (confirmedForCDIR) {
+                                                // Reauthentication process
+                                                // password is ok and you can begin file transfers
                                                 serverSentence = "!Logged in \t !Changed working dir to " + nextDirectory +"\n";
                                                 currentDirectory = nextDirectory;
                                                 nextDirectory = "";
                                                 confirmedForCDIR = false;
                                             } else {
+                                                // password is ok and you can begin file transfers
                                                 serverSentence = "!Logged in \n";
                                             }
                                             outToClient.writeBytes(serverSentence);
@@ -214,12 +237,14 @@ public class Server {
                                 }
                                 for (String key: dictUs) {
                                     if (key.equals(currentUser)) {
+                                        // password is ok and you can begin file transfers
                                         loggedIN = true;
                                         serverSentence = "!Logged in \n";
                                         outToClient.writeBytes(serverSentence);
                                         breakout = true;
                                     }
                                 }
+                                // To break out of the switch case statement
                                 if (breakout) {
                                     breakout = false;
                                     break;
@@ -228,27 +253,33 @@ public class Server {
                                 serverSentence = "-Wrong password, try again \n";
                                 outToClient.writeBytes(serverSentence);
                             }
-                            // ! Logged in = password is ok and you can begin file transfers
-                            // +Send account = password ok but you haven't specified the account
-                            // -Wrong password, try again
                             break;
 
-                        /* {A (ASCII) | B (Binary) | C (Continuous)}
+
+                        /* The following commands can only be used
+                        when the user is logged in and has been authenticated into the remote system */
+
+
+                        /* TYPE command
+                        {A (ASCII) | B (Binary) | C (Continuous)}
                         The mapping of the stored file to the transmission byte stream is controlled by the type.
                         The default is binary if they type is not specified */
+
                         case "TYPE":
+                            // If a type was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Type not specified. Try again \n";
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     switch(arg){
-                                        case "A":
+                                        case "A": // ASCII mode
                                             serverSentence = "+Using Ascii mode \n";
                                             break;
-                                        case "C":
+                                        case "C": // Continuous mode
                                             serverSentence = "+Using Continuous mode \n";
                                             break;
-                                        default: // B - mentioned default is binary if the type is not specified?????
+                                        default: // B - mentioned default is binary if the type is not specified
                                             serverSentence = "+Using Binary mode \n";
                                             break;
                                     }
@@ -257,21 +288,25 @@ public class Server {
                                 }
                             }
                             outToClient.writeBytes(serverSentence );
-                            // +Using { Ascii | Binary | Continuous } mode
-                            // -Type not valid
                             break;
 
-                        /* {F (standard formatted directory listing) | V (verbose directory listing) } directory listing
+
+                        /* LIST command
+                        {F (standard formatted directory listing) | V (verbose directory listing) } directory listing
                         A null directory-path will return the current connected directory listing */
+
                         case "LIST":
+                            // If a format and/or directory was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "Format is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     String[] properties = arg.split(" ");
                                     String format = properties[0].toUpperCase();
                                     Path tempPath;
+                                    // Checks if the user provided a directory, if not, then use the current directory
                                     try {
                                         tempPath = Paths.get(properties[1]);
                                         File file = new File(tempPath.toString());
@@ -285,17 +320,19 @@ public class Server {
 
                                     serverSentence = "+" + tempPath + "\t"; // "\n"
                                     System.out.println(Arrays.toString(paths));
+
+                                    // If the directory provided is empty
                                     if (paths == null) {
                                         serverSentence = serverSentence + "+Empty directory \n";
                                         outToClient.writeBytes(serverSentence);
                                     } else {
                                         for (String path: paths) {
                                             if (format.equals("F")) {
-                                                // formatted with just the file names
+                                                // Formatted with just the file names
                                                 serverSentence = serverSentence + path + ", \t"; // "\n"
 //                                                outToClient.writeBytes(serverSentence);
                                             } else if (format.equals("V")) {
-                                                // formatted with details such as the file name, the file size and the date it was last modified
+                                                // Formatted with details such as the file name, the file size and the date it was last modified
                                                 File tempFile = new File(tempPath + System.getProperty("file.separator") + path);
                                                 long fileSize = (tempFile.length());
                                                 Date fileDate = new Date(tempFile.lastModified());
@@ -322,15 +359,20 @@ public class Server {
                             }
                             break;
 
-                        /* New-directory
+
+                        /* CDIR command
                         * This will change the current working directory on the remote host to the argument passed */
+
                         case "CDIR":
+                            // If a directory was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Directory is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     File newDirectory = new File(arg);
+                                    // If the user does not need to provide an account/password, i.e. guest
                                     if (newDirectory.exists() && hasFullAccess) {
                                          currentDirectory = arg;
                                          nextDirectory = "";
@@ -344,6 +386,15 @@ public class Server {
                                          confirmedForCDIR = true;
                                          currentAccount = "";
                                          loggedIN = false;
+                                         // If the server replies with '+'
+                                            // ACCT command
+                                                // !Changed working dir to <new-directory>
+                                                // +account ok, send password
+                                                // -invalid account
+                                            // PASS command
+                                                // !Changed working dir to <new-directory>
+                                                // +password ok, send account
+                                                // -invalid password
                                     } else {
                                         serverSentence = "-Can't connect to directory because what you provided does not exist \n";
                                         outToClient.writeBytes(serverSentence);
@@ -353,33 +404,28 @@ public class Server {
                                     outToClient.writeBytes(serverSentence);
                                 }
                             }
-                            // !Changed working dir to <new-directory>
-                            // -Can't connect to directory because: (reason)
-                            // +directory ok, send account/password
-                            // if the server replies with '+'
-                                // ACCT command
-                                    // !Changed working dir to <new-directory>
-                                    // +account ok, send password
-                                    // -invalid account
-                                // PASS command
-                                    // !Changed working dir to <new-directory>
-                                    // +password ok, send account
-                                    // -invalid password
+
                             break;
 
-                        /* file-spec
+
+                        /* KILL command
                         This will delete the file from the remote system */
+
                         case "KILL":
                             Path path = null;
+                            // If a file was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Can't kill because the filename has not been specified. Try again \n";
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     try {
+                                        // Checks to see if it can be deleted
                                         path = Paths.get(currentDirectory, arg);
                                         Files.delete(path);
                                         serverSentence = "+" + arg + " deleted";
                                     } catch (Exception e) {
+                                        // Typically because it does not exist
                                         serverSentence = "-Not deleted because " + e;
                                     }
                                 } else {
@@ -387,22 +433,27 @@ public class Server {
                                 }
                             }
                             outToClient.writeBytes(serverSentence);
-                            // +<file-spec> deleted
-                            // -Not deleted because (reason)
                             break;
 
-                        /* Checks if a file exists or not */
-                        case "NAME": // arg = file
+
+                        /* NAME command
+                        Checks if a file exists or not */
+
+                        case "NAME":
+                            // If a file/arg was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-File name is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     File tempDirectory = new File(currentDirectory + System.getProperty("file.separator") + arg);
                                     if (tempDirectory.exists()) {
                                         serverSentence = "+File exists \n";
                                         oldFileSpec = arg;
                                         tobeNext = true;
+                                        // If you receive a '+'
+                                            // Then can send command: TOBE new-file-spec
                                     } else {
                                         serverSentence = "-Can't find " + arg + " NAME command is aborted, don't send TOBE \n";
                                     }
@@ -413,26 +464,26 @@ public class Server {
                                     outToClient.writeBytes(serverSentence);
                                 }
                             }
-                            // +File exists
-                            // -Can't find <old-file-spec> = NAME command is aborted, don't send TOBE
-                            // if you receive a '+'
-                                // TOBE new-file-spec
-                            // The server replies with:
-                                // +<old-file-spec> renamed to <new-file-spec>
-                                // -File wasn't renamed because (reason)
                             break;
 
-                        /* old-file-spec
+
+                        /* TOBE command
                         Renames the old-file-spec to be new-file-spec on the remote system */
+
                         case "TOBE":
                             String file = arg;
+                            // If a file/arg was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-File name is not specified. Try again \n";
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     File oldFile = new File(currentDirectory + System.getProperty("file.separator") + oldFileSpec);
                                     File newFile = new File(currentDirectory + System.getProperty("file.separator") + file);
+                                    // Ensures that the command prior was the NEXT command
                                     if (tobeNext) {
+                                        // If the old file (the file specified in the NAME command) can be changed
+                                        // to the new file (the file specified in the TOBE command)
                                         if (oldFile.renameTo(newFile)) {
                                             serverSentence = "+" + oldFileSpec + " renamed to " + file + "\n";
                                             tobeNext = false;
@@ -449,7 +500,10 @@ public class Server {
                             outToClient.writeBytes(serverSentence);
                             break;
 
-                        /* Tells the remote system you are done */
+
+                        /* DONE command
+                        Tells the remote system you are done */
+
                         case "DONE":
                             serverSentence = "+Server closing connection"; // +(the message may be charge/accounting info)
                             outToClient.writeBytes(serverSentence);
@@ -457,18 +511,23 @@ public class Server {
                             connectionSocket.close();
                             break;
 
-                        /* file-spec
+
+                        /* RETR command
                         Requests that the remote system send the specified file */
+
                         case "RETR":
+                            // If a file/arg was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-File is not specified. Try again \n";
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     File sendFile = new File(currentDirectory + System.getProperty("file.separator") + arg);
                                     if (sendFile.exists()) {
                                         readyToSend = true;
                                         sizeToSend = (int) sendFile.length();
                                         fileToSend = currentDirectory + System.getProperty("file.separator") + arg;
+                                        // <number-of-bytes-that-will-be-sent> (as ascii digits)
                                         serverSentence = String.valueOf(sizeToSend) + "\n";
                                     } else {
                                         serverSentence = "-File does not exist \n";
@@ -478,17 +537,20 @@ public class Server {
                                 }
                             }
                             outToClient.writeBytes(serverSentence);
-                            // receiving a '-' from the server should abord the RETR command
-                            // <number-of-bytes-that-will-be-sent> (as ascii digits)
-                            // -File doesn't exist
-                            // then reply to the remote system with:
+                            // Then reply to the remote system with:
                                 // SEND (ok, waiting for file)
                                 // STOP (You don't have enough space to store file)
                                     // +ok, RETR aborted
                             break;
 
+
+                        /* STOP command
+                        This command can also only be used after the RETR command. This is where the RETR command is aborted */
+
                         case "STOP":
+                            // Ensures that the user is logged in before moving forward
                             if (loggedIN) {
+                                // Ensures that the command prior to this was the RETR command
                                 if (readyToSend) {
                                     serverSentence = "+ok, RETR aborted \n";
                                 } else {
@@ -498,14 +560,23 @@ public class Server {
                                 serverSentence = "-Not Logged in. Please log in \n";
                             }
                             outToClient.writeBytes(serverSentence);
+
+                            // Reset variables
                             readyToSend= false;
                             sizeToSend = 0;
                             fileToSend = "";
                             break;
 
+
+                        /* SEND command
+                        This command is only used after entering the RETR command. This is where the server verifies that the file refered to in the RETR command can be sent (which is where the system has enough space to send) */
+
                         case "SEND":
+                            // Ensures that the user is logged in before moving forward
                             if (loggedIN) {
+                                // Ensures that the command prior to this was the RETR command
                                 if (readyToSend) {
+                                    // Create a buffer to store file that wants to be sent
                                     OutputStream out = connectionSocket.getOutputStream();
                                     BufferedInputStream in = new BufferedInputStream(new FileInputStream(fileToSend));
                                     int counter;
@@ -524,18 +595,25 @@ public class Server {
                                 serverSentence = "-Not Logged in. Please log in \n";
                             }
                             outToClient.writeBytes(serverSentence);
+
+                            // Reset variables
                             readyToSend = false;
                             sizeToSend = 0;
                             fileToSend = "";
                             break;
 
-                        /* {NEW | OLD | APP} file-spec
+
+                        /* STOR command
+                        {NEW | OLD | APP} file-spec
                         Tells the remote system to receive the following file and save it under that name */
+
                         case "STOR":
+                            // If a file/arg was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-File is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
                             } else {
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     String[] properties = arg.split(" ");
                                     storageType = properties[0].toUpperCase();
@@ -543,9 +621,12 @@ public class Server {
                                     fileName = directory[directory.length - 1];
                                     System.out.println("over here");
                                     System.out.println(fileName);
-                                    File tempDirectory = new File (currentDirectory + System.getProperty("file.separator") + fileName);
+                                    File tempDirectory = new File(currentDirectory + System.getProperty("file.separator") + fileName);
                                     switch (storageType) {
+
+                                        // NEW = specifies it should create a new generation of the file and not delete the existing one
                                         case "NEW":
+                                            // Can change the local boolean if you want the system to support generations
                                             if (!supportsGenerations) {
                                                 serverSentence = "-File exists, but system doesn't support generations \n";
                                             } else if (tempDirectory.exists()) {
@@ -555,6 +636,8 @@ public class Server {
                                             }
                                             outToClient.writeBytes(serverSentence);
                                             break;
+
+                                        // OLD = specifies it should write over the existing file, if any, or else create a new file with the specified name
                                         case "OLD":
                                             if (tempDirectory.exists()) {
                                                 serverSentence = "+Will write over old file \n";
@@ -563,6 +646,8 @@ public class Server {
                                             }
                                             outToClient.writeBytes(serverSentence);
                                             break;
+
+                                        // APP = specifies that what you send should be appended to the file on the remote site.
                                         case "APP":
                                             if (tempDirectory.exists()) {
                                                 serverSentence = "+Will append to file \n";
@@ -571,31 +656,25 @@ public class Server {
                                             }
                                             outToClient.writeBytes(serverSentence);
                                             break;
+
+                                        // If the file doesn't exist it will be created
                                     }
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
                                     outToClient.writeBytes(serverSentence);
                                 }
                             }
-                            // receiving a '-' should abort the STOR command
-                            // NEW = specifies it should create a new generation of the file and not delete the existing one
-                                // +File exists, will create new generation of file
-                                // +File does not exist, will create new file
-                                // -File exists, but system doesn't support generations
-                            // OLD = specifies it should write over the existing file, if any, or else create a new file with the specified name
-                                // +Will write over old file
-                                // +Will create new file
-                            // APP = specifies that what you send should be appended to the file on the remote site.
-                            // If the file doesn't exist it will be created
-                                // +Will append to file
-                                // +Will create file
                             // You then send:
                                 // SIZE <number-of-bytes-in-file> (as ASCII digits) = exact number of 8-bit bytes you will be sending
                                     // +ok, waiting for file
-
                             break;
 
+
+                        /* SIZE command
+                        This command outputs whether the size of the file is acceptable from the STOR command */
+
                         case "SIZE":
+                            // If a file/arg was not provided
                             if (arg == null || arg.length() < 1) {
                                 serverSentence = "-Size is not specified. Try again \n";
                                 outToClient.writeBytes(serverSentence);
@@ -605,6 +684,8 @@ public class Server {
                                 long amountOfSpace = fileSpace.getFreeSpace();
                                 boolean isTextFile = true;
                                 FileOutputStream FOS = null;
+
+                                // Ensures that the user is logged in before moving forward
                                 if (loggedIN) {
                                     if (size < amountOfSpace) {
                                         switch (storageType) {
@@ -634,6 +715,7 @@ public class Server {
                                                 }
                                                 break;
                                         }
+                                        // Ensures that the system is only working with text files - because it cannot handle anything else
                                         if(isTextFile){
                                             serverSentence = "+ok waiting for file, " + "+Saved " + fileName + "\n";
                                             outToClient.writeBytes(serverSentence);
@@ -654,20 +736,14 @@ public class Server {
                                 }
                             }
                             break;
-
-//                        default:
-//                            serverSentence = "-Invalid command. Please try again \n";
-//                            outToClient.writeBytes(serverSentence);
-//                            break;
                     }
                 }
             }
-//            clientSentence = inFromClient.readLine();
-//            serverSentence = clientSentence.toUpperCase() + '\n';
-//            outToClient.writeBytes(serverSentence);
         }
     }
 
+    // For initialising data
+    // The data can be found in `data.txt`
     private static void loadData(String path) throws IOException {
          System.out.println("Data loaded successfully! \n");
          FileReader file = new FileReader(String.valueOf(path));
@@ -676,13 +752,17 @@ public class Server {
          String[] elements, value;
          while((line = data.readLine()) != null) {
              elements = line.split(" ");
+
+             // If it has a USER, PASS, ACCT
              if (elements.length == 3) {
                  value = new String[]{elements[1], elements[0]};
                  dictAcctUser.put(elements[2], value);
              } else if (elements.length == 2) {
+                 // If it has a USER and PASS
                  usersWithSomeAccess.add(elements[0]);
                  dictUser.put(elements[0], elements[1]);
              } else if (elements.length == 1) {
+                 // If it only has USER
                  usersWithFullAccess.add(elements[0]);
              }
          }
