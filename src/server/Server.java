@@ -26,7 +26,6 @@ class Server {
     private static int sizeToSend = 0;
     private static String fileToSend = "";
     private static String oldFileSpec = "";
-//    private static String newFileSpec = "";
     private static Boolean tobeNext = false;
     private static String storageType = "";
     private static String fileName = "";
@@ -610,7 +609,7 @@ class Server {
                                                 File tempDirectory = new File(currentDirectory +  System.getProperty("file.separator") + fileName);
                                                 int version = 1;
                                                 while (tempDirectory.exists()) {
-                                                    fileName = fileName + "(" + version + ")." + fileType;
+                                                    fileName = name + "(" + version + ")." + fileType;
                                                     tempDirectory = new File(currentDirectory +  System.getProperty("file.separator") + fileName);
                                                     version++;
                                                 }
