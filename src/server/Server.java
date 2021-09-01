@@ -312,7 +312,7 @@ public class Server {
                                         File file = new File(tempPath.toString());
                                     } catch (Exception e) {
                                         serverSentence = "File does not exist " + e + ", using current directory instead\n";
-//                                        outToClient.writeBytes(serverSentence);
+                                        outToClient.writeBytes(serverSentence);
                                         tempPath = Paths.get(currentDirectory);
                                     }
                                     File file = new File(tempPath.toString());
@@ -330,27 +330,18 @@ public class Server {
                                             if (format.equals("F")) {
                                                 // Formatted with just the file names
                                                 serverSentence = serverSentence + path + ", \t"; // "\n"
-//                                                outToClient.writeBytes(serverSentence);
                                             } else if (format.equals("V")) {
                                                 // Formatted with details such as the file name, the file size and the date it was last modified
                                                 File tempFile = new File(tempPath + System.getProperty("file.separator") + path);
                                                 long fileSize = (tempFile.length());
                                                 Date fileDate = new Date(tempFile.lastModified());
                                                 serverSentence = serverSentence + path + "\t" + fileSize + "Bytes\t" + fileDate + ", \t"; // "\n"
-//                                                outToClient.writeBytes(serverSentence);
                                             } else {
                                                 serverSentence = "-Invalid format \n";
                                                 outToClient.writeBytes(serverSentence);
                                             }
                                         }
-//                                        System.out.print(serverSentence);
                                     }
-//                                    String[] toOutput = serverSentence.split("\t");
-//                                    System.out.println("up to here");
-//                                    for (String line: toOutput) {
-//                                        System.out.println(line);
-//                                        outToClient.writeBytes(line + "\n");
-//                                    }
                                     outToClient.writeBytes(serverSentence + "\n");
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
@@ -569,7 +560,9 @@ public class Server {
 
 
                         /* SEND command
-                        This command is only used after entering the RETR command. This is where the server verifies that the file refered to in the RETR command can be sent (which is where the system has enough space to send) */
+                        This command is only used after entering the RETR command.
+                        This is where the server verifies that the file refered to in the RETR command can be sent
+                        (which is where the system has enough space to send) */
 
                         case "SEND":
                             // Ensures that the user is logged in before moving forward

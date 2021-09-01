@@ -190,6 +190,14 @@ FROM SERVER: +C:\Users\jemje\Documents\2021\SEMESTER2\COMPSYS725\assignment1\jma
 $ LIST F random
 FROM SERVER: +random	+Empty directory  
 ```
+```
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1(1).txt, 	file1.txt, 	file2.txt, 	Folder, 	
+$ LIST F
+FROM SERVER: File does not exist java.lang.ArrayIndexOutOfBoundsException: 1, using current directory instead
+$ LIST F
+FROM SERVER: +C:\Users\jemje\Documents\2021\SEMESTER2\COMPSYS725\assignment1\jmar948\CS725_A1	.classpath, 	.git, 	.idea, 	.project, 	CS725_A1.iml, 	README.md, 	src, 	test.db, 	
+```
 #### CDIR
 This command will change the current working directory on the remote host to the argument passed. If the user has full access like `guest`, then they will not need to reenter their credentials again to reauthenticate themselves  
 ``` 
