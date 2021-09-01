@@ -1,5 +1,5 @@
 # SFTP - RFC913
-## CS726: Assignment 1
+## CS725: Assignment 1
 
 ### Submission
 An implementation of the file transfer protocol described in [RFC 913](https://tools.ietf.org/html/rfc913).
@@ -14,11 +14,49 @@ ID: 134166382
 ### Client Commands
 
 ### User Details
+The different types of users:  
 
+|  USER   |  PASS |  ACCT  |     
+| ------- |:-----:| ------:|  
+| guest   |       |        |  
+| TA   | assistant2 |        |  
+| student   | 1234 | jmar948  |  
+| lecturer   | efg      | abcd123  |  
+
+To see a list of users with access, refer to `jmar948\CS725_A1\src\server\data.txt`
 ### Instructions for compiling
+1. Open IntelliJ IDEA Community Edition 2021.1.3
+2. Ensure that you have Java version 8 SDK (1.8 version 1.8.0_301)
+3. File -> New -> Project from Existing Sources -> (navigate to where the `jmar948\jmar948` folder is located)
+4. Import project = Create project from existing sources -> NEXT
+5. Ensure that  
+   Project name: `jmar948`  
+   Project location: <location where the `jmar948\jmar948` folder is saved>
+   Project format: `.idea (directory-based)`  
+   
+    if `File Already Exists` pops up -> YES  
+6. `...jmar948\jmar948\CS725_A1\src` -> NEXT -> NEXT 
+7. `jmar948 (...\jmar948\jmar948) [src]` is ticked -> NEXT
+   
+    if `File Already Exists` pops up -> OVERWRITE
+8. project SDK: 1.8  
+    Make sure:  
+   `...\jmar948\jmar948\CS725_A1\src\server\Server.class`,
+   `...\jmar948\jmar948\CS725_A1\src\client\Client.class`,  
+   is listed under `Classpath` -> NEXT
+9. No frameworks detected -> FINISH
 
+Note: if this does not work, try [cloning my repo](https://github.com/jemimahmartinez/SFTP)
 ### Running the Tests
-
+In the Project Tab:
+1. Navigate and right click on `jmar948\jmar948\CS725_A1\src\server\Server.java`
+2. Click on `Run 'Server.main()'`  
+   Should see `Data loaded successfully!`
+3. Navigate and right click on `jmar948\jmar948\CS725_A1\src\client\Client.java`
+4. Click on `Run 'Client.main()'`
+5. In the running terminal that pops up after running `Client.main()`, press `Enter` on your keyboard  
+   Should see `FROM SERVER: +Server SFTP Service `
+6. Continue with test cases 
 ### Test Cases
 
 #### USER
