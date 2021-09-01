@@ -276,8 +276,8 @@ public class Server {
                                         tempPath = Paths.get(properties[1]);
                                         File file = new File(tempPath.toString());
                                     } catch (Exception e) {
-                                        serverSentence = "File does not exist " + e + "\n";
-                                        outToClient.writeBytes(serverSentence);
+                                        serverSentence = "File does not exist " + e + ", using current directory instead\n";
+//                                        outToClient.writeBytes(serverSentence);
                                         tempPath = Paths.get(currentDirectory);
                                     }
                                     File file = new File(tempPath.toString());
@@ -292,7 +292,7 @@ public class Server {
                                         for (String path: paths) {
                                             if (format.equals("F")) {
                                                 // formatted with just the file names
-                                                serverSentence = serverSentence + path + "\t"; // "\n"
+                                                serverSentence = serverSentence + path + ", \t"; // "\n"
 //                                                outToClient.writeBytes(serverSentence);
                                             } else if (format.equals("V")) {
                                                 // formatted with details such as the file name, the file size and the date it was last modified
@@ -404,7 +404,7 @@ public class Server {
                                         oldFileSpec = arg;
                                         tobeNext = true;
                                     } else {
-                                        serverSentence = "-Can't find " + oldFileSpec + "NAME command is aborted, don't send TOBE \n";
+                                        serverSentence = "-Can't find " + arg + " NAME command is aborted, don't send TOBE \n";
                                     }
                                     outToClient.writeBytes(serverSentence);
                                     System.out.println(currentDirectory);
@@ -437,10 +437,10 @@ public class Server {
                                             serverSentence = "+" + oldFileSpec + " renamed to " + file + "\n";
                                             tobeNext = false;
                                         } else {
-                                            serverSentence = "-File was not changed because it is not valid \n";
+                                            serverSentence = "-File was not changed because a file in that directory is already called " + file + "\n";
                                         }
                                     } else {
-                                        serverSentence = "- File name was not changed because a new name was provided\n";
+                                        serverSentence = "-File name was not changed you need to do the NAME command first\n";
                                     }
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
