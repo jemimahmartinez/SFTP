@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-class Server {
+public class Server {
 
     private static final ArrayList<String> usersWithFullAccess = new ArrayList<String>();
     private static final ArrayList<String> usersWithSomeAccess = new ArrayList<String>();
@@ -271,8 +271,9 @@ class Server {
                                 if (loggedIN) {
                                     String[] properties = arg.split(" ");
                                     String format = properties[0].toUpperCase();
-                                    Path tempPath = Paths.get(properties[1]);
+                                    Path tempPath;
                                     try {
+                                        tempPath = Paths.get(properties[1]);
                                         File file = new File(tempPath.toString());
                                     } catch (Exception e) {
                                         serverSentence = "File does not exist " + e + "\n";
@@ -282,34 +283,38 @@ class Server {
                                     File file = new File(tempPath.toString());
                                     String[] paths = file.list();
 
-                                    serverSentence = "+" + tempPath + "\n";
+                                    serverSentence = "+" + tempPath + "\t"; // "\n"
                                     System.out.println(Arrays.toString(paths));
                                     if (paths == null) {
                                         serverSentence = serverSentence + "+Empty directory \n";
+                                        outToClient.writeBytes(serverSentence);
                                     } else {
                                         for (String path: paths) {
                                             if (format.equals("F")) {
                                                 // formatted with just the file names
-                                                serverSentence = serverSentence + path + "\n";
+                                                serverSentence = serverSentence + path + "\t"; // "\n"
+//                                                outToClient.writeBytes(serverSentence);
                                             } else if (format.equals("V")) {
                                                 // formatted with details such as the file name, the file size and the date it was last modified
                                                 File tempFile = new File(tempPath + System.getProperty("file.separator") + path);
                                                 long fileSize = (tempFile.length());
                                                 Date fileDate = new Date(tempFile.lastModified());
-                                                serverSentence = serverSentence + path + "\t" + fileSize + "Bytes\t" + fileDate + "\n";
+                                                serverSentence = serverSentence + path + "\t" + fileSize + "Bytes\t" + fileDate + ", \t"; // "\n"
+//                                                outToClient.writeBytes(serverSentence);
                                             } else {
                                                 serverSentence = "-Invalid format \n";
+                                                outToClient.writeBytes(serverSentence);
                                             }
-                                            System.out.print(serverSentence);
                                         }
+//                                        System.out.print(serverSentence);
                                     }
-                                    String[] toOutput = serverSentence.split("\n");
-                                    System.out.println("up to here");
-                                    for (String line: toOutput) {
-                                        System.out.println(line);
-                                        outToClient.writeBytes(line);
-                                    }
-//                                    outToClient.writeBytes(serverSentence);
+//                                    String[] toOutput = serverSentence.split("\t");
+//                                    System.out.println("up to here");
+//                                    for (String line: toOutput) {
+//                                        System.out.println(line);
+//                                        outToClient.writeBytes(line + "\n");
+//                                    }
+                                    outToClient.writeBytes(serverSentence + "\n");
                                 } else {
                                     serverSentence = "-Not Logged in. Please log in \n";
                                     outToClient.writeBytes(serverSentence);
