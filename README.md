@@ -56,7 +56,7 @@ To see a list of users with access, refer to `jmar948\CS725_A1\src\server\data.t
    is listed under `Classpath` -> NEXT
 9. No frameworks detected -> FINISH
 
-Note: if this does not work, try [cloning my repo](https://github.com/jemimahmartinez/SFTP)
+Note: verified that it works on a Windows OS. If this does not work, try [cloning my repo](https://github.com/jemimahmartinez/SFTP)
 ### Running the Tests
 In the Project Tab:
 1. Navigate and right click on `jmar948\jmar948\CS725_A1\src\server\Server.java`
