@@ -635,7 +635,7 @@ public class Server {
                                                 break;
                                         }
                                         if(isTextFile){
-                                            serverSentence = "+ok waiting for file," + "+Saved " + fileName + "\n";
+                                            serverSentence = "+ok waiting for file, " + "+Saved " + fileName + "\n";
                                             outToClient.writeBytes(serverSentence);
                                             BufferedOutputStream OUT = new BufferedOutputStream(FOS);
                                             for (int i = 0; i < size; i++) {

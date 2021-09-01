@@ -388,5 +388,65 @@ FROM SERVER: +ok, RETR aborted
 ```
 #### STOR
 This command tells the remote system to receive the following file and save it under that name 
-
+```
+FROM SERVER: +Server SFTP Service 
+$ STOR NEW C:\Users\jemje\forTesting\file1.txt
+FROM SERVER: -Not Logged in. Please log in 
+$ STOR APP C:\Users\jemje\forTesting\file2.txt
+FROM SERVER: -Not Logged in. Please log in 
+$ STOR OLD C:\Users\jemje\forTesting\file1.txt
+FROM SERVER: -Not Logged in. Please log in 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting\Folder
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting\Folder
+$ STOR NEW C:\Users\jemje\forTesting\file2.txt
+FROM SERVER: +File does not exist, will create new file  
+```
+```
+$ LIST F C:\Users\jemje\forTesting\Folder
+FROM SERVER: +C:\Users\jemje\forTesting\Folder	hi.txt, 	
+$ STOR NEW C:\Users\jemjem\forTesting\Folder\hi.txt
+FROM SERVER: +File exists, will create new generation of file  
+```
+```
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting\Folder
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting\Folder
+$ STOR OLD C:\Users\jemje\forTesting\Folder\hi.txt
+FROM SERVER: +Will write over old file 
+```
 #### SIZE
+```
+FROM SERVER: +Server SFTP Service 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ STOR OLD C:\Users\jemje\forTesting\file1.txt
+FROM SERVER: +Will write over old file 
+$ SIZE 12
+FROM SERVER: +ok waiting for file, +Saved file1.txt
+```
+```
+FROM SERVER: +Server SFTP Service 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ CDIR C:\Users\jemje\forTesting
+FROM SERVER: !Changed working dir to C:\Users\jemje\forTesting
+$ LIST F C:\Users\jemje\forTesting
+FROM SERVER: +C:\Users\jemje\forTesting	file1.txt, 	file2.txt, 	Folder, 	
+$ STOR NEW C:\Users\jemje\forTesting\file1.txt
+FROM SERVER: +File exists, will create new generation of file 
+$ SIZE 12
+FROM SERVER: +ok waiting for file, +Saved file1(1).txt
+```
+```
+$ SIZE 12
+FROM SERVER: -Not Logged in. Please log in 
+$ USER guest
+FROM SERVER: !guest logged in 
+$ SIZE
+FROM SERVER: -Size is not specified. Try again 
+```
